@@ -18,6 +18,7 @@ RUN conda create -y -n app scipy numpy bokeh pandas numexpr jupyter lxml python=
 RUN /bin/bash -c "source activate app && pip install -r requirements.txt"
 RUN /bin/bash -c "source activate app && cd cplex/python/3.4/x86-64_linux/ && python setup.py install"
 
+EXPOSE 5000
 
 COPY . /app
 WORKDIR /app
