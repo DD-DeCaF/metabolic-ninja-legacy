@@ -1,7 +1,7 @@
 import os
 import re
 import pickle
-from cameo import models
+from cameo import load_model, models
 from cameo.strain_design.pathway_prediction import PathwayPredictor
 from cameo.util import Timer
 
@@ -31,7 +31,7 @@ if os.path.exists('cache.pickle'):
 else:
     logger.debug('No model found. Loading model from scratch')
     with Timer('Building model from scratch'):
-        model = models.bigg.iMM904
+        model = load_model('models/iMM904.json')
         universal_model = models.universal.metanetx_universal_model_bigg_rhea
         predictor = PathwayPredictor(model=model, universal_model=universal_model,
                                      compartment_regexp=re.compile(".*_c$"))
