@@ -2,8 +2,15 @@ server:
   build: .
   ports:
     - "9000:8080"
+  links:
+    - mongo
 worker:
   build: .
   dockerfile: Dockerfile-worker
   links:
     - server
+    - mongo
+mongo:
+  image: mongo
+  ports:
+    - "27017:27017"  # for debugging

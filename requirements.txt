@@ -3,3 +3,4 @@ aiozmq
 msgpack-python
 cameo==0.5.2
 swiglpk==1.2.14
+pymongo

@@ -1,43 +1,46 @@
 import asyncio
-import json
 import time
 from functools import partial
-
-import requests
+from random import randint
 from aiozmq import rpc
-from utils import logger
+from utils import get_predictor, logger
+from mongo_client import MongoDB
 
 MAX_PREDICTIONS = 3
-
-predictor = None
 
 
 def predict_mock(product, max_predictions, callback):
     """Mock for Cameo predictor with callback function"""
-    for step in range(10):
-        callback("Pathway {}".format(step))
+    result = []
+    for step in range(MAX_PREDICTIONS):
+        pathway = "Pathway {}: ".format(step) + ", ".join("reaction {}".format(i) for i in range(randint(1, 5)))
+        callback(pathway)
+        result.append(pathway)
         time.sleep(1)
-    return 'OK'
+    return result
 
 
-def push_progress(request_id, message):
-    requests.post('http://server:8080/progress', data=json.dumps({
-        "request_id": request_id,
-        "message": message,
-    }))
+def append_pathway(product, pathway):
+    logger.debug("writing to mongo: add pathway {}".format(pathway))
+    mongo_client.append_pathway(product, pathway)
+    logger.debug("written to mongo: pathway {}".format(pathway))
 
 
 class WorkerHandler(rpc.AttrHandler):
     @rpc.method
-    def predict_pathways(self, product: str, request_id: int) -> str:
-        # result = pathways_to_html(predictor.run(product=product, max_predictions=MAX_PREDICTIONS))
-        logger.debug("Request ID is {}".format(request_id))
-        result = predict_mock(
+    def predict_pathways(self, product: str):
+        mongo_client.upsert(product)
+        # get_predictor().run(
+        #     product=product,
+        #     max_predictions=MAX_PREDICTIONS,
+        #     callback=partial(append_pathway, product),
+        # )
+        predict_mock(
             product=product,
             max_predictions=MAX_PREDICTIONS,
-            callback=partial(push_progress, request_id),
+            callback=partial(append_pathway, product),
         )
-        return "Worker {}, product {}, pathways {}".format(request_id, product, result)
+        mongo_client.set_ready(product)
 
 
 @asyncio.coroutine
@@ -46,7 +49,7 @@ def worker():
 
 
 if __name__ == '__main__':
-    # predictor = get_predictor()  # get the model when the worker starts
+    mongo_client = MongoDB()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(worker())
     loop.run_forever()

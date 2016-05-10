@@ -1,8 +1,8 @@
 from aiohttp import web
 from aiozmq import rpc
+from mongo_client import MongoDB
 import asyncio
 import logging
-from itertools import count
 
 logging.basicConfig()
 logger = logging.getLogger('server')
@@ -11,31 +11,17 @@ logger.setLevel(logging.DEBUG)
 client = None
 
 
-class IDGenerator(object):
-    counter = count(1)
-
-    @classmethod
-    def next(cls):
-        return next(cls.counter)
-
-
 @asyncio.coroutine
-def hello(request):
+def get_pathways(request):
     product = request.GET['product']
-    pathways = yield from client.call.predict_pathways(product, IDGenerator.next())
-    return web.Response(text=pathways)
-
-
-@asyncio.coroutine
-def progress(request):
-    data = yield from request.json()
-    logger.info(data)
-    return web.HTTPOk()
+    if not mongo_client.exists(product) or not mongo_client.is_ready(product):
+        client.call.predict_pathways(product)
+        return web.HTTPAccepted(text="Request is accepted")
+    return web.HTTPOk(text="Ready")
 
 
 app = web.Application()
-app.router.add_route('GET', '/', hello)
-app.router.add_route('POST', '/progress', progress)
+app.router.add_route('GET', '/', get_pathways)
 
 
 @asyncio.coroutine
@@ -46,6 +32,7 @@ def server(loop):
 
 
 if __name__ == '__main__':
+    mongo_client = MongoDB()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(server(loop))
     try:
