@@ -1,3 +1,5 @@
-flask==0.10.1
+aiohttp
+aiozmq
+msgpack-python
 cameo==0.5.2
 swiglpk==1.2.14

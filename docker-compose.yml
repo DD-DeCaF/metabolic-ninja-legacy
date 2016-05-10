@@ -1,0 +1,9 @@
+server:
+  build: .
+  ports:
+    - "9000:8080"
+worker:
+  build: .
+  dockerfile: Dockerfile-worker
+  links:
+    - server
