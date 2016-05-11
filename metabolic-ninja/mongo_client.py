@@ -37,9 +37,15 @@ class MongoDB(object):
             }}
         )
 
+    def get(self, product):
+        return self.collection.find_one({'_id': product})
+
     def exists(self, product):
         return self.collection.find({'_id': product}).count() > 0
 
     def is_ready(self, product):
-        return self.collection.find_one({'_id': product})["ready"]
+        return self.get(product)["ready"]
+
+    def remove(self, product):
+        self.collection.remove({'_id': product})
 

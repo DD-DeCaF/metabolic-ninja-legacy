@@ -6,7 +6,7 @@ from aiozmq import rpc
 from utils import get_predictor, logger
 from mongo_client import MongoDB
 
-MAX_PREDICTIONS = 3
+MAX_PREDICTIONS = 10
 
 
 def predict_mock(product, max_predictions, callback):
@@ -16,7 +16,7 @@ def predict_mock(product, max_predictions, callback):
         pathway = "Pathway {}: ".format(step) + ", ".join("reaction {}".format(i) for i in range(randint(1, 5)))
         callback(pathway)
         result.append(pathway)
-        time.sleep(1)
+        time.sleep(5)
     return result
 
 
@@ -30,17 +30,22 @@ class WorkerHandler(rpc.AttrHandler):
     @rpc.method
     def predict_pathways(self, product: str):
         mongo_client.upsert(product)
-        # get_predictor().run(
-        #     product=product,
-        #     max_predictions=MAX_PREDICTIONS,
-        #     callback=partial(append_pathway, product),
-        # )
-        predict_mock(
-            product=product,
-            max_predictions=MAX_PREDICTIONS,
-            callback=partial(append_pathway, product),
-        )
-        mongo_client.set_ready(product)
+        try:
+            # get_predictor().run(
+            #     product=product,
+            #     max_predictions=MAX_PREDICTIONS,
+            #     callback=partial(append_pathway, product),
+            # )
+            predict_mock(
+                product=product,
+                max_predictions=MAX_PREDICTIONS,
+                callback=partial(append_pathway, product),
+            )
+        except:
+            mongo_client.remove(product)
+            raise
+        else:
+            mongo_client.set_ready(product)
 
 
 @asyncio.coroutine
