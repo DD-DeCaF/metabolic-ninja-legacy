@@ -1,6 +1,7 @@
 from aiohttp import web
 from aiozmq import rpc
-from mongo_client import MongoDB
+from motor import motor_asyncio
+import os
 import json
 import asyncio
 import logging
@@ -15,10 +16,10 @@ client = None
 @asyncio.coroutine
 def run_predictor(request):
     product = request.GET['product']
-    exists = mongo_client.exists(product)
-    if exists and mongo_client.is_ready(product):
+    product_document = yield from mongo_client.db.ecoli.find_one({'_id': product})
+    if product_document and product_document["ready"]:
         return web.HTTPOk(text="Ready")
-    if not exists:
+    if not product_document:
         client.call.predict_pathways(product)
     return web.HTTPAccepted(text="Request is accepted")
 
@@ -26,9 +27,10 @@ def run_predictor(request):
 @asyncio.coroutine
 def pathways(request):
     product = request.GET['product']
+    product_document = yield from mongo_client.db.ecoli.find_one({'_id': product})
     result = []
-    if mongo_client.exists(product):
-        result = mongo_client.get(product)['pathways']
+    if product_document:
+        result = product_document['pathways']
     return web.HTTPOk(text=json.dumps(result))
 
 
@@ -45,7 +47,7 @@ def server(loop):
 
 
 if __name__ == '__main__':
-    mongo_client = MongoDB()
+    mongo_client = motor_asyncio.AsyncIOMotorClient(os.environ['MONGO_PORT_27017_TCP_ADDR'], 27017)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(server(loop))
     try:

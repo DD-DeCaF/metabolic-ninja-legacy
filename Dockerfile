@@ -1,8 +1,7 @@
 FROM python:3.4
-RUN pip install aiohttp aiozmq msgpack-python pymongo
+RUN pip install aiohttp aiozmq msgpack-python motor
 
 ADD ./metabolic-ninja/server.py .
-ADD ./metabolic-ninja/mongo_client.py .
 
 EXPOSE 8080
 
