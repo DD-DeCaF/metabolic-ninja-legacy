@@ -1,6 +1,6 @@
 aiohttp
 aiozmq
 msgpack-python
-cameo==0.5.2
+cameo==0.6.0
 swiglpk==1.2.14
 pymongo

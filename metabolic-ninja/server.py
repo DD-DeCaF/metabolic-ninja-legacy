@@ -2,7 +2,6 @@ from aiohttp import web
 from aiozmq import rpc
 from motor import motor_asyncio
 import os
-import json
 import asyncio
 import logging
 
@@ -21,7 +20,7 @@ def run_predictor(request):
         return web.HTTPOk(text="Ready")
     if not product_document:
         client.call.predict_pathways(product)
-    return web.HTTPAccepted(text="Request is accepted")
+    return web.HTTPAccepted(text="Accepted")
 
 
 @asyncio.coroutine
@@ -31,7 +30,7 @@ def pathways(request):
     result = []
     if product_document:
         result = product_document['pathways']
-    return web.HTTPOk(text=json.dumps(result))
+    return web.json_response(result)
 
 
 app = web.Application()

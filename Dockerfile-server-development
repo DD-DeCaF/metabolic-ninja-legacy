@@ -1,0 +1,11 @@
+FROM python:3.4
+RUN pip install aiohttp aiozmq msgpack-python motor
+
+VOLUME /metabolic-ninja
+WORKDIR /metabolic-ninja
+
+EXPOSE 8080
+
+EXPOSE 5555
+RUN ls
+CMD ["python", "metabolic-ninja/server.py"]

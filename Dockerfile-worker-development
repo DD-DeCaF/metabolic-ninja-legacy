@@ -17,11 +17,8 @@ ADD requirements.txt requirements.txt
 RUN /bin/bash -c "source activate app && pip install -r requirements.txt"
 RUN /bin/bash -c "source activate app && cd cplex/python/3.4/x86-64_linux/ && python setup.py install"
 
-WORKDIR /app
-ADD models ./models
-ADD cplex ./cplex
-ADD ./metabolic-ninja/worker.py .
-ADD ./metabolic-ninja/utils.py .
-ADD ./metabolic-ninja/mongo_client.py .
+VOLUME /metabolic-ninja
+WORKDIR /metabolic-ninja
+RUN ls
 ENTRYPOINT ["/root/miniconda/envs/app/bin/python"]
-CMD ["worker.py"]
+CMD ["metabolic-ninja/worker.py"]

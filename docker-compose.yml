@@ -2,14 +2,19 @@ server:
   build: .
   ports:
     - "9000:8080"
+  dockerfile: Dockerfile-server-development
   links:
     - mongo
+  volumes:
+    - ./:/metabolic-ninja
 worker:
   build: .
-  dockerfile: Dockerfile-worker
+  dockerfile: Dockerfile-worker-development
   links:
     - server
     - mongo
+  volumes:
+    - ./:/metabolic-ninja
 mongo:
   image: mongo
   ports:
