@@ -11,7 +11,6 @@ logger = logging.getLogger('metabolic-ninja')
 logger.setLevel(logging.DEBUG)
 
 
-IMM904_MODEL_PATH = 'models/iMM904.json'
 PICKLED_PREDICTOR_PATH = 'cache.pickle'
 
 
@@ -48,10 +47,9 @@ def load_predictor():
 
 
 def generate_predictor():
-    universal_model = models.universal.metanetx_universal_model_bigg_rhea
     return PathwayPredictor(
-        model=load_model(IMM904_MODEL_PATH),
-        universal_model=universal_model,
+        model=models.bigg.iMM904,
+        universal_model=models.universal.metanetx_universal_model_bigg_rhea,
         compartment_regexp=re.compile(".*_c$")
     )
 

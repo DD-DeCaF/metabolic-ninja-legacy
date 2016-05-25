@@ -18,7 +18,6 @@ RUN /bin/bash -c "source activate app && pip install -r requirements.txt"
 RUN /bin/bash -c "source activate app && cd cplex/python/3.4/x86-64_linux/ && python setup.py install"
 
 WORKDIR /app
-ADD models ./models
 ADD cplex ./cplex
 ADD ./metabolic-ninja/worker.py .
 ADD ./metabolic-ninja/utils.py .
