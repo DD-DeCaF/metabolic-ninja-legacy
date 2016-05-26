@@ -1,9 +1,9 @@
+import asyncio
+import logging
+import os
 from aiohttp import web
 from aiozmq import rpc
 from motor import motor_asyncio
-import os
-import asyncio
-import logging
 
 logging.basicConfig()
 logger = logging.getLogger('server')

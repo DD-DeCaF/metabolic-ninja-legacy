@@ -1,5 +1,6 @@
 import asyncio
 import time
+import os
 from functools import partial
 from random import randint
 from aiozmq import rpc
@@ -55,7 +56,7 @@ def worker():
 
 if __name__ == '__main__':
     predictor = get_predictor()
-    mongo_client = MongoDB()
+    mongo_client = MongoDB(os.environ['MONGO_PORT_27017_TCP_ADDR'], 27017)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(worker())
     loop.run_forever()

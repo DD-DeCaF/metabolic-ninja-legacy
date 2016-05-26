@@ -12,8 +12,8 @@ class MongoDB(object):
     """
     Pymongo methods wrapper for simpler calls
     """
-    def __init__(self):
-        self.mongo_client = MongoClient(os.environ['MONGO_PORT_27017_TCP_ADDR'], 27017)
+    def __init__(self, *args, **kwargs):
+        self.mongo_client = MongoClient(*args, **kwargs)
         self.collection = self.mongo_client.db.ecoli
 
     def upsert(self, product):
