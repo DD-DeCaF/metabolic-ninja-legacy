@@ -32,6 +32,7 @@ class WorkerHandler(rpc.AttrHandler):
     def predict_pathways(self, product: str):
         mongo_client.upsert(product)
         try:
+            logger.debug("Running pathway prediction for {}".format(product))
             predictor.run(
                 product=product,
                 max_predictions=MAX_PREDICTIONS,
@@ -51,7 +52,7 @@ class WorkerHandler(rpc.AttrHandler):
 
 @asyncio.coroutine
 def worker():
-    yield from rpc.serve_rpc(WorkerHandler(), connect='tcp://server:5555')
+    yield from rpc.serve_rpc(WorkerHandler(), connect=os.environ['SERVER_PORT_5555_TCP'])
 
 
 if __name__ == '__main__':
