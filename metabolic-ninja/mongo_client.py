@@ -14,10 +14,11 @@ class MongoDB(object):
     """
     def __init__(self, *args, **kwargs):
         self.mongo_client = MongoClient(*args, **kwargs)
-        self.collection = self.mongo_client.db.ecoli
+        self.ecoli_collection = self.mongo_client.db.ecoli
+        self.product_collection = self.mongo_client.db.product
 
     def upsert(self, product):
-        self.collection.update(
+        self.ecoli_collection.update(
             {'_id': product},
             {'$set': {
                 "pathways": [],
@@ -27,13 +28,13 @@ class MongoDB(object):
         )
 
     def append_pathway(self, product, pathway):
-        self.collection.update(
+        self.ecoli_collection.update(
             {"_id": product},
             {"$push": {"pathways": pathway}}
         )
 
     def set_ready(self, product):
-        self.collection.update(
+        self.ecoli_collection.update(
             {'_id': product},
             {'$set': {
                 "ready": True
@@ -41,5 +42,14 @@ class MongoDB(object):
         )
 
     def remove(self, product):
-        self.collection.remove({'_id': product})
+        self.ecoli_collection.remove({'_id': product})
 
+    def insert_product_list(self, metabolites):
+        for metabolite in metabolites:
+            self.product_collection.update(
+                {'_id': metabolite.name},
+                {'$set': {
+                    "name": metabolite.name
+                }},
+                upsert=True
+            )

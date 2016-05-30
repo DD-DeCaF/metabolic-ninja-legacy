@@ -15,12 +15,15 @@ client = None
 @asyncio.coroutine
 def run_predictor(request):
     product = request.GET['product']
-    product_document = yield from mongo_client.db.ecoli.find_one({'_id': product})
-    if product_document and product_document["ready"]:
-        return web.HTTPOk(text="Ready")
-    if not product_document:
-        client.call.predict_pathways(product)
-    return web.HTTPAccepted(text="Accepted")
+    product_exists = yield from mongo_client.db.product.find_one({'_id': product})
+    if product_exists:
+        product_document = yield from mongo_client.db.ecoli.find_one({'_id': product})
+        if product_document and product_document["ready"]:
+            return web.HTTPOk(text="Ready")
+        if not product_document:
+            client.call.predict_pathways(product)
+        return web.HTTPAccepted(text="Accepted")
+    return web.HTTPNotFound(text="No such product")
 
 
 @asyncio.coroutine
@@ -33,15 +36,26 @@ def pathways(request):
     return web.json_response(result)
 
 
+@asyncio.coroutine
+def product_list(request):
+    result = []
+    products_cursor = mongo_client.db.product.find()
+    while (yield from products_cursor.fetch_next):
+        result.append(products_cursor.next_object()['_id'])
+    return web.json_response(result)
+
+
 app = web.Application()
 app.router.add_route('GET', '/', run_predictor)
 app.router.add_route('GET', '/pathways', pathways)
+app.router.add_route('GET', '/product_list', product_list)
 
 
 @asyncio.coroutine
 def server(loop):
     global client
     client = yield from rpc.connect_rpc(bind='tcp://0.0.0.0:5555')
+    yield from client.call.create_list_of_products()
     yield from loop.create_server(app.make_handler(), '0.0.0.0', 8080)
 
 
