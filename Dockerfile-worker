@@ -1,26 +1,10 @@
-FROM ubuntu:14.04
-USER root
-RUN echo "from scratch"
-RUN apt-get -y update && apt-get install -y swig libzmq3-dev libgmp-dev libglpk-dev glpk-utils \
-            pandoc libxml2 libxml2-dev zlib1g zlib1g-dev bzip2 libbz2-dev build-essential wget curl
-ADD miniconda.sh miniconda.sh
-ADD cplex cplex
-RUN bash miniconda.sh -b -p /root/miniconda
-ENV PATH "/root/miniconda/bin:$PATH"
-RUN hash -r
-RUN conda config --set always_yes yes --set changeps1 no
-RUN conda update -q conda
-# Useful for debugging any issues with conda
-RUN conda info -a
-RUN conda create -y -n app scipy numpy bokeh pandas numexpr jupyter lxml python=3.4
-ADD requirements.txt requirements.txt
-RUN /bin/bash -c "source activate app && pip install -r requirements.txt"
-RUN /bin/bash -c "source activate app && cd cplex/python/3.4/x86-64_linux/ && python setup.py install"
+FROM biosustain/cobra-cplex:latest
 
-WORKDIR /app
-ADD cplex ./cplex
+RUN /bin/bash -c "/opt/conda/envs/python3.4/bin/pip install -r requirements.txt"
+
 ADD ./metabolic-ninja/worker.py .
 ADD ./metabolic-ninja/utils.py .
 ADD ./metabolic-ninja/mongo_client.py .
-ENTRYPOINT ["/root/miniconda/envs/app/bin/python"]
+
+ENTRYPOINT ["/opt/conda/envs/python3.4/bin/python"]
 CMD ["worker.py"]
