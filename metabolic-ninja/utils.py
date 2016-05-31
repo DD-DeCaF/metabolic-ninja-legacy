@@ -14,19 +14,16 @@ logger.setLevel(logging.DEBUG)
 PICKLED_PREDICTOR_PATH = 'cache.pickle'
 
 
-def pathways_to_html(pathways):
-    string = str()
-    for i, pathway in enumerate(pathways):
-        string += pathway_to_string(pathway)
-    return string
+def pathway_to_list(pathway):
+    return [reaction_to_dict(reaction) for reaction in pathway.reactions]
 
 
-def pathway_to_string(pathway):
-    string = str()
-    for reaction in pathway.reactions:
-        string += '{}, {}, {}'.format(reaction.id, reaction.name,
-                                      reaction.build_reaction_string(use_metabolite_names=True))
-    return string
+def reaction_to_dict(reaction):
+    return dict(
+        id=reaction.id,
+        name=reaction.name,
+        reaction_string=reaction.build_reaction_string(use_metabolite_names=True),
+    )
 
 
 def get_predictor():

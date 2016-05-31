@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from datetime import datetime, timedelta
 from aiohttp import web
 from aiozmq import rpc
 from motor import motor_asyncio
@@ -12,17 +13,33 @@ logger.setLevel(logging.DEBUG)
 client = None
 
 
+TIMEOUT = timedelta(minutes=20)
+
+
+def prediction_has_failed(product_document):
+    return product_document and (product_document['ready'] is False) and \
+           (datetime.now() - product_document['updated'] >= TIMEOUT)
+
+
+def prediction_is_ready(product_document):
+    return product_document and product_document['ready'] is True
+
+
 @asyncio.coroutine
 def run_predictor(request):
     product = request.GET['product']
     product_exists = yield from mongo_client.db.product.find_one({'_id': product})
     if product_exists:
         product_document = yield from mongo_client.db.ecoli.find_one({'_id': product})
-        if product_document and product_document["ready"]:
-            return web.HTTPOk(text="Ready")
         if not product_document:
             client.call.predict_pathways(product)
-        return web.HTTPAccepted(text="Accepted")
+            return web.HTTPAccepted(text="Accepted")
+        if prediction_is_ready(product_document):
+            return web.HTTPOk(text="Ready")
+        if prediction_has_failed(product_document):
+            yield from mongo_client.db.ecoli.remove({'_id': product})
+            client.call.predict_pathways(product)
+            return web.HTTPAccepted(text="Prediction failed, restarting")
     return web.HTTPNotFound(text="No such product")
 
 
@@ -56,7 +73,9 @@ def server(loop):
     global client
     client = yield from rpc.connect_rpc(bind='tcp://0.0.0.0:5555')
     yield from client.call.create_list_of_products()
+    logger.debug('Product list is ready')
     yield from loop.create_server(app.make_handler(), '0.0.0.0', 8080)
+    logger.debug('Web server is up')
 
 
 if __name__ == '__main__':

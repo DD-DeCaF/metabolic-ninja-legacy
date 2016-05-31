@@ -1,4 +1,4 @@
-import os
+from datetime import datetime
 from pymongo import MongoClient
 
 import logging
@@ -18,11 +18,14 @@ class MongoDB(object):
         self.product_collection = self.mongo_client.db.product
 
     def upsert(self, product):
+        timestamp = datetime.now()
         self.ecoli_collection.update(
             {'_id': product},
             {'$set': {
                 "pathways": [],
-                "ready": False
+                "ready": False,
+                "created": timestamp,
+                "updated": timestamp,
             }},
             upsert=True
         )
@@ -30,14 +33,15 @@ class MongoDB(object):
     def append_pathway(self, product, pathway):
         self.ecoli_collection.update(
             {"_id": product},
-            {"$push": {"pathways": pathway}}
+            {"$push": {"pathways": pathway}, '$set': {"updated": datetime.now()}}
         )
 
     def set_ready(self, product):
         self.ecoli_collection.update(
             {'_id': product},
             {'$set': {
-                "ready": True
+                "ready": True,
+                "updated": datetime.now(),
             }}
         )
 

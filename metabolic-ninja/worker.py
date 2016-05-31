@@ -2,7 +2,7 @@ import asyncio
 import os
 from functools import partial
 from aiozmq import rpc
-from utils import get_predictor, pathway_to_string, logger
+from utils import get_predictor, pathway_to_list, logger
 from mongo_client import MongoDB
 
 MAX_PREDICTIONS = 10
@@ -10,7 +10,7 @@ MAX_PREDICTIONS = 10
 
 def append_pathway(product, pathway):
     logger.debug("Pathway for product {} is ready, add to mongo".format(product))
-    mongo_client.append_pathway(product, pathway_to_string(pathway))
+    mongo_client.append_pathway(product, pathway_to_list(pathway))
 
 
 class WorkerHandler(rpc.AttrHandler):
@@ -34,6 +34,7 @@ class WorkerHandler(rpc.AttrHandler):
 
     @rpc.method
     def create_list_of_products(self):
+        logger.debug("Creating products list")
         mongo_client.insert_product_list(predictor.universal_model.metabolites)
 
 
