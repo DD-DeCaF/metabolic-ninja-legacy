@@ -9,7 +9,7 @@ server:
     - ./:/metabolic-ninja
 worker:
   build: .
-  dockerfile: Dockerfile-worker-development
+  dockerfile: Dockerfile-worker
   links:
     - server
     - mongo

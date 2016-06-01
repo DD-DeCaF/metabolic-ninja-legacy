@@ -17,36 +17,36 @@ TIMEOUT = timedelta(minutes=20)
 
 
 def prediction_has_failed(product_document):
-    return product_document and (product_document['ready'] is False) and \
+    return product_document and (not product_document['ready']) and \
            (datetime.now() - product_document['updated'] >= TIMEOUT)
 
 
 def prediction_is_ready(product_document):
-    return product_document and product_document['ready'] is True
+    return product_document and product_document['ready']
 
 
 @asyncio.coroutine
 def run_predictor(request):
     product = request.GET['product']
-    product_exists = yield from mongo_client.db.product.find_one({'_id': product})
-    if product_exists:
-        product_document = yield from mongo_client.db.ecoli.find_one({'_id': product})
-        if not product_document:
-            client.call.predict_pathways(product)
-            return web.HTTPAccepted(text="Accepted")
-        if prediction_is_ready(product_document):
-            return web.HTTPOk(text="Ready")
-        if prediction_has_failed(product_document):
-            yield from mongo_client.db.ecoli.remove({'_id': product})
-            client.call.predict_pathways(product)
-            return web.HTTPAccepted(text="Prediction failed, restarting")
-    return web.HTTPNotFound(text="No such product")
+    product_exists = yield from mongo_client.db.product.find_one(product)
+    if not product_exists:
+        return web.HTTPNotFound(text="No such product")
+    product_document = yield from mongo_client.db.ecoli.find_one(product)
+    if prediction_is_ready(product_document):
+        return web.HTTPOk(text="Ready")
+    if prediction_has_failed(product_document):
+        yield from mongo_client.db.ecoli.remove(product)
+        client.call.predict_pathways(product)
+        return web.HTTPAccepted(text="Prediction failed, restarting")
+    if not product_document:
+        client.call.predict_pathways(product)
+    return web.HTTPAccepted(text="Accepted")
 
 
 @asyncio.coroutine
 def pathways(request):
     product = request.GET['product']
-    product_document = yield from mongo_client.db.ecoli.find_one({'_id': product})
+    product_document = yield from mongo_client.db.ecoli.find_one(product)
     result = []
     if product_document:
         result = product_document['pathways']
