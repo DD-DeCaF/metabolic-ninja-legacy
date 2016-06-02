@@ -63,9 +63,10 @@ def product_list(request):
 
 
 app = web.Application()
-app.router.add_route('GET', '/', run_predictor)
-app.router.add_route('GET', '/pathways', pathways)
-app.router.add_route('GET', '/product_list', product_list)
+API_PREFIX = '/api'
+app.router.add_route('GET', API_PREFIX, run_predictor)
+app.router.add_route('GET', API_PREFIX + '/pathways', pathways)
+app.router.add_route('GET', API_PREFIX + '/product_list', product_list)
 
 
 @asyncio.coroutine
