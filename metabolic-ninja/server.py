@@ -72,7 +72,9 @@ app.router.add_route('GET', API_PREFIX + '/product_list', product_list)
 @asyncio.coroutine
 def server(loop):
     global client
+    logger.debug('Connect to RPC server')
     client = yield from rpc.connect_rpc(bind='tcp://0.0.0.0:5555')
+    logger.debug('Calling for list of products')
     yield from client.call.create_list_of_products()
     logger.debug('Product list is ready')
     yield from loop.create_server(app.make_handler(), '0.0.0.0', 8080)
