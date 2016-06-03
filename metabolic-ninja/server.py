@@ -13,7 +13,7 @@ logger.setLevel(logging.DEBUG)
 client = None
 
 
-TIMEOUT = timedelta(minutes=20)
+TIMEOUT = timedelta(minutes=60)
 
 
 def prediction_has_failed(product_document):
@@ -30,16 +30,20 @@ def run_predictor(request):
     product = request.GET['product']
     product_exists = yield from mongo_client.db.product.find_one(product)
     if not product_exists:
+        logger.debug("No such product: {}".format(product))
         return web.HTTPNotFound(text="No such product")
     product_document = yield from mongo_client.db.ecoli.find_one(product)
     if prediction_is_ready(product_document):
+        logger.debug("Product {} is ready".format(product))
         return web.HTTPOk(text="Ready")
     if prediction_has_failed(product_document):
         yield from mongo_client.db.ecoli.remove(product)
         client.call.predict_pathways(product)
+        logger.debug("Prediction for product {} is failed, restarting".format(product))
         return web.HTTPAccepted(text="Prediction failed, restarting")
     if not product_document:
         client.call.predict_pathways(product)
+    logger.debug("Product {} is accepted for prediction".format(product))
     return web.HTTPAccepted(text="Accepted")
 
 

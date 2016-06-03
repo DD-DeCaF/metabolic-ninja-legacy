@@ -5,7 +5,7 @@ from aiozmq import rpc
 from utils import get_predictor, pathway_to_list, logger
 from mongo_client import MongoDB
 
-MAX_PREDICTIONS = 10
+MAX_PREDICTIONS = 5
 
 
 def append_pathway(product, pathway):
@@ -41,7 +41,7 @@ class WorkerHandler(rpc.AttrHandler):
 @asyncio.coroutine
 def worker():
     yield from rpc.serve_rpc(WorkerHandler(), connect=os.environ['SERVER_PORT_5555_TCP'])
-
+    logger.debug("Serving RPC on {}".format(os.environ['SERVER_PORT_5555_TCP']))
 
 if __name__ == '__main__':
     predictor = get_predictor()

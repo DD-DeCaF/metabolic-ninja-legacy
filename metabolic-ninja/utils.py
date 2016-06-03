@@ -35,6 +35,7 @@ def get_predictor():
     with Timer('Building model from scratch'):
         predictor = generate_predictor()
     dump_predictor(predictor)
+    logger.debug('Predictor is ready')
     return predictor
 
 
