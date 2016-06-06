@@ -45,11 +45,13 @@ def load_predictor():
 
 
 def generate_predictor():
-    return PathwayPredictor(
-        model=models.bigg.iMM904,
-        universal_model=models.universal.metanetx_universal_model_bigg_rhea,
+    pathway_predictor = PathwayPredictor(
+        model=models.bigg.iJO1366,
+        universal_model=models.universal.metanetx_universal_model_bigg_rhea_kegg,
         compartment_regexp=re.compile(".*_c$")
     )
+    pathway_predictor.model.solver.problem.parameters.tune_problem()
+    return pathway_predictor
 
 
 def dump_predictor(predictor):
