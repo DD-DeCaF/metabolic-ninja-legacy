@@ -57,3 +57,12 @@ class MongoDB(object):
                 }},
                 upsert=True
             )
+
+    def is_available(self, product):
+        return self.product_collection.find_one(product)
+
+    def find(self, product):
+        return self.ecoli_collection.find_one(product)
+
+    def all_products(self):
+        return self.product_collection.find()

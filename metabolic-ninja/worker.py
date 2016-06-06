@@ -5,7 +5,7 @@ from aiozmq import rpc
 from utils import get_predictor, pathway_to_list, logger
 from mongo_client import MongoDB
 
-MAX_PREDICTIONS = 5
+MAX_PREDICTIONS = 10
 
 
 def append_pathway(product, pathway):
@@ -16,7 +16,6 @@ def append_pathway(product, pathway):
 class WorkerHandler(rpc.AttrHandler):
     @rpc.method
     def predict_pathways(self, product: str):
-        mongo_client.upsert(product)
         try:
             logger.debug("Starting pathway prediction for {}".format(product))
             predictor.run(

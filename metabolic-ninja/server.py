@@ -4,7 +4,7 @@ import os
 from datetime import datetime, timedelta
 from aiohttp import web
 from aiozmq import rpc
-from motor import motor_asyncio
+from mongo_client import MongoDB
 
 logging.basicConfig()
 logger = logging.getLogger('server')
@@ -25,32 +25,37 @@ def prediction_is_ready(product_document):
     return product_document and product_document['ready']
 
 
+def start_prediction(product):
+    mongo_client.upsert(product)
+    client.call.predict_pathways(product)
+
+
 @asyncio.coroutine
 def run_predictor(request):
     product = request.GET['product']
-    product_exists = yield from mongo_client.db.product.find_one(product)
+    product_exists = mongo_client.is_available(product)
     if not product_exists:
         logger.debug("No such product: {}".format(product))
         return web.HTTPNotFound(text="No such product")
-    product_document = yield from mongo_client.db.ecoli.find_one(product)
+    product_document = mongo_client.find(product)
     if prediction_is_ready(product_document):
         logger.debug("Product {} is ready".format(product))
         return web.HTTPOk(text="Ready")
     if prediction_has_failed(product_document):
-        yield from mongo_client.db.ecoli.remove(product)
-        client.call.predict_pathways(product)
+        mongo_client.remove(product)
+        start_prediction(product)
         logger.debug("Prediction for product {} is failed, restarting".format(product))
         return web.HTTPAccepted(text="Prediction failed, restarting")
     if not product_document:
-        client.call.predict_pathways(product)
-    logger.debug("Product {} is accepted for prediction".format(product))
+        start_prediction(product)
+        logger.debug("Start prediction for {}".format(product))
     return web.HTTPAccepted(text="Accepted")
 
 
 @asyncio.coroutine
 def pathways(request):
     product = request.GET['product']
-    product_document = yield from mongo_client.db.ecoli.find_one(product)
+    product_document = mongo_client.find(product)
     result = []
     if product_document:
         result = product_document['pathways']
@@ -59,11 +64,7 @@ def pathways(request):
 
 @asyncio.coroutine
 def product_list(request):
-    result = []
-    products_cursor = mongo_client.db.product.find()
-    while (yield from products_cursor.fetch_next):
-        result.append(products_cursor.next_object()['_id'])
-    return web.json_response(result)
+    return web.json_response([p['_id'] for p in mongo_client.all_products()])
 
 
 app = web.Application()
@@ -86,7 +87,7 @@ def server(loop):
 
 
 if __name__ == '__main__':
-    mongo_client = motor_asyncio.AsyncIOMotorClient(os.environ['MONGO_PORT_27017_TCP_ADDR'], 27017)
+    mongo_client = MongoDB(os.environ['MONGO_PORT_27017_TCP_ADDR'], 27017)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(server(loop))
     try:
