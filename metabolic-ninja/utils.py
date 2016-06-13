@@ -1,10 +1,14 @@
 import os
 import re
 import pickle
+import logging
+import json
+from copy import deepcopy
+import cobra
 from cameo import load_model, models
 from cameo.strain_design.pathway_prediction import PathwayPredictor
 from cameo.util import Timer
-import logging
+
 
 logging.basicConfig()
 logger = logging.getLogger('metabolic-ninja')
@@ -12,6 +16,12 @@ logger.setLevel(logging.DEBUG)
 
 
 PICKLED_PREDICTOR_PATH = 'cache.pickle'
+
+
+def pathway_to_model(pathway):
+    model = cobra.Model('test')
+    model.add_reactions(deepcopy(list(pathway.reactions)))
+    return json.loads(cobra.io.to_json(model))
 
 
 def pathway_to_list(pathway):

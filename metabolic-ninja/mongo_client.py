@@ -4,7 +4,7 @@ from pymongo import MongoClient
 import logging
 
 logging.basicConfig()
-logger = logging.getLogger('mongo')
+logger = logging.getLogger('mongo_client')
 logger.setLevel(logging.DEBUG)
 
 
@@ -30,10 +30,19 @@ class MongoDB(object):
             upsert=True
         )
 
-    def append_pathway(self, product, pathway):
+    def append_pathway(self, product, reactions_list, model):
         self.ecoli_collection.update(
-            {"_id": product},
-            {"$push": {"pathways": pathway}, '$set': {"updated": datetime.now()}}
+            {
+                "_id": product
+            },
+            {
+                "$push": {
+                    "pathways": {'reactions': reactions_list, 'model': model}
+                },
+                '$set': {
+                    "updated": datetime.now()
+                }
+            }
         )
 
     def set_ready(self, product):

@@ -13,8 +13,6 @@ worker:
   links:
     - server
     - mongo
-  volumes:
-    - ./:/metabolic-ninja
 mongo:
   image: mongo
   ports:
