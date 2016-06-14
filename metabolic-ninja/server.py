@@ -48,7 +48,7 @@ def run_predictor(request):
         return web.HTTPAccepted(text="Prediction failed, restarting")
     if not product_document:
         start_prediction(product)
-        logger.debug("Start prediction for {}".format(product))
+        logger.debug("Call prediction for {}".format(product))
     return web.HTTPAccepted(text="Accepted")
 
 

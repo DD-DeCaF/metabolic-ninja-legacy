@@ -30,14 +30,14 @@ class MongoDB(object):
             upsert=True
         )
 
-    def append_pathway(self, product, reactions_list, model):
+    def append_pathway(self, product, reactions_list, model, primary_nodes):
         self.ecoli_collection.update(
             {
                 "_id": product
             },
             {
                 "$push": {
-                    "pathways": {'reactions': reactions_list, 'model': model}
+                    "pathways": {'reactions': reactions_list, 'model': model, 'primary_nodes': primary_nodes}
                 },
                 '$set': {
                     "updated": datetime.now()

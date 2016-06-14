@@ -36,6 +36,14 @@ def reaction_to_dict(reaction):
     )
 
 
+def metabolite_to_dict(metabolite):
+    return dict(
+        id=metabolite.nice_id,
+        name=metabolite.name,
+        formula=metabolite.formula,
+    )
+
+
 def get_predictor():
     if os.path.exists(PICKLED_PREDICTOR_PATH):
         logger.debug('Cached model found.')

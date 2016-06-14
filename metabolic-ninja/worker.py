@@ -4,7 +4,8 @@ import sys
 import traceback
 from functools import partial
 from aiozmq import rpc
-from utils import get_predictor, pathway_to_list, pathway_to_model, logger
+from utils import get_predictor, metabolite_to_dict, reaction_to_dict, pathway_to_model, logger
+from pathway_graph import PathwayGraph
 from mongo_client import MongoDB
 
 
@@ -13,7 +14,10 @@ MAX_PREDICTIONS = 10
 
 def append_pathway(product, pathway):
     logger.debug("Pathway for product {} is ready, add to mongo".format(product))
-    mongo_client.append_pathway(product, pathway_to_list(pathway), pathway_to_model(pathway))
+    pathway_graph = PathwayGraph(pathway, product)
+    reactions_list = [reaction_to_dict(reaction) for reaction in pathway_graph.sorted_reactions]
+    primary_nodes = [metabolite_to_dict(metabolite) for metabolite in pathway_graph.sorted_primary_nodes]
+    mongo_client.append_pathway(product, reactions_list, pathway_to_model(pathway), primary_nodes)
 
 
 class WorkerHandler(rpc.AttrHandler):
