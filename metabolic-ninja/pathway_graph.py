@@ -22,7 +22,7 @@ def opposite_metabolites(reaction, metabolite):
 class PathwayGraph(object):
     """
     A possible bug: If a cofactor is presented in exactly 2 reactions and it's not in DEFAULT_COFACTORS,
-    it could be counted as a primary metabolite, which leads to a wrong visualization of reactions chain.
+    it could be counted as a primary metabolite.
     """
     DEFAULT_COFACTORS = {
         'ATP', 'ADP', 'NAD(+)', 'NADH(2-)', 'NADP(+)', 'NADPH',
@@ -62,7 +62,9 @@ class PathwayGraph(object):
             return
         reaction = rs[0]
         self.primary_nodes[reaction] = start
-        if prev_reaction:
+        if start.name == self.final_product:
+            self.graph.add_node(reaction)
+        else:
             self.graph.add_edge(reaction, prev_reaction)
         primaries = self.not_secondary_metabolites(reaction, start)  # partly duplicates len(rs) check above,
         # but it is needed to remove cofactors which participate in exactly 2 reactions in pathway by chance
