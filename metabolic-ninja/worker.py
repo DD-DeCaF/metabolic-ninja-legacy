@@ -6,13 +6,14 @@ from functools import partial
 from aiozmq import rpc
 from utils import get_predictor, metabolite_to_dict, reaction_to_dict, pathway_to_model, logger
 from pathway_graph import PathwayGraph
-from mongo_client import MongoDB
+from mongo_client import MongoDB, ModelMongoDB
+from cameo import models
 
 
 MAX_PREDICTIONS = 10
 
 
-def append_pathway(product, pathway):
+def append_pathway(mongo_client, product, pathway):
     logger.debug("Pathway for product {} is ready, add to mongo".format(product))
     pathway_graph = PathwayGraph(pathway, product)
     reactions_list = [reaction_to_dict(reaction) for reaction in pathway_graph.sorted_reactions]
@@ -22,14 +23,15 @@ def append_pathway(product, pathway):
 
 class WorkerHandler(rpc.AttrHandler):
     @rpc.method
-    def predict_pathways(self, product: str):
+    def predict_pathways(self, product: str, model_id: str):
+        mongo_client = ModelMongoDB(model_id)
         try:
-            predictor = get_predictor()
+            predictor = get_predictor(model_id)
             logger.debug("Starting pathway prediction for {}".format(product))
             predictor.run(
                 product=product,
                 max_predictions=MAX_PREDICTIONS,
-                callback=partial(append_pathway, product),
+                callback=partial(append_pathway, mongo_client, product),
             )
         except:
             ex_type, ex, tb = sys.exc_info()
@@ -42,9 +44,14 @@ class WorkerHandler(rpc.AttrHandler):
             mongo_client.set_ready(product)
 
     @rpc.method
+    def create_list_of_models(self):
+        logger.debug("Creating models list")
+        MongoDB().insert_models_list(models.index_models_bigg())
+
+    @rpc.method
     def create_list_of_products(self):
         logger.debug("Creating products list")
-        mongo_client.insert_product_list(get_predictor().universal_model.metabolites)
+        MongoDB().insert_product_list(models.universal.metanetx_universal_model_bigg_rhea_kegg_brenda.metabolites)
 
 
 @asyncio.coroutine
@@ -53,7 +60,6 @@ def worker():
     logger.debug("Serving RPC on {}".format(os.environ['SERVER_PORT_5555_TCP']))
 
 if __name__ == '__main__':
-    mongo_client = MongoDB(os.environ['MONGO_PORT_27017_TCP_ADDR'], 27017)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(worker())
     loop.run_forever()

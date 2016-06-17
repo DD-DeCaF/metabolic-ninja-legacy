@@ -15,7 +15,7 @@ logger = logging.getLogger('metabolic-ninja')
 logger.setLevel(logging.DEBUG)
 
 
-PICKLED_PREDICTOR_PATH = 'cache.pickle'
+PICKLED_PREDICTOR_PATH = 'cache_{}.pickle'
 
 
 def pathway_to_model(pathway):
@@ -44,34 +44,34 @@ def metabolite_to_dict(metabolite):
     )
 
 
-def get_predictor():
-    if os.path.exists(PICKLED_PREDICTOR_PATH):
+def get_predictor(model_id):
+    if os.path.exists(PICKLED_PREDICTOR_PATH.format(model_id)):
         logger.debug('Cached model found.')
         with Timer('Loading pickled model'):
-            return load_predictor()
+            return load_predictor(model_id)
     logger.debug('No model found. Loading model from scratch')
     with Timer('Building model from scratch'):
-        predictor = generate_predictor()
-    dump_predictor(predictor)
+        predictor = generate_predictor(model_id)
+    dump_predictor(predictor, model_id)
     logger.debug('Predictor is ready')
     return predictor
 
 
-def load_predictor():
-    with open(PICKLED_PREDICTOR_PATH, 'rb') as f:
+def load_predictor(model_id):
+    with open(PICKLED_PREDICTOR_PATH.format(model_id), 'rb') as f:
         return pickle.load(f)
 
 
-def generate_predictor():
+def generate_predictor(model_id):
     pathway_predictor = PathwayPredictor(
-        model=models.bigg.iJO1366,
-        universal_model=models.universal.metanetx_universal_model_bigg_rhea_kegg,
+        model=getattr(models.bigg, model_id),
+        universal_model=models.universal.metanetx_universal_model_bigg_rhea_kegg_brenda,
         compartment_regexp=re.compile(".*_c$")
     )
     pathway_predictor.model.solver.problem.parameters.tune_problem()
     return pathway_predictor
 
 
-def dump_predictor(predictor):
-    with open(PICKLED_PREDICTOR_PATH, 'wb') as f:
+def dump_predictor(predictor, model_id):
+    with open(PICKLED_PREDICTOR_PATH.format(model_id), 'wb') as f:
         pickle.dump(predictor, f)
