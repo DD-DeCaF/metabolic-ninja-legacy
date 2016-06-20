@@ -29,15 +29,15 @@ class PathwayGraph(object):
         'GTP', 'GDP', 'CoA', 'UMP(2-)', 'H(+)', 'O2', 'CO(2)', 'H2O'
     }
 
-    def __init__(self, pathway, final_product):
+    def __init__(self, pathway, product_id):
         self.pathway = pathway
-        self.final_product = final_product
+        self.final_product_id = product_id
         pathway_metabolites = reduce(
             lambda x, y: x | y,
             (reaction.metabolites.keys() for reaction in self.pathway.reactions)
         )
         self.all_metabolites = {
-            metabolite.name: metabolite for metabolite in pathway_metabolites
+            metabolite.id: metabolite for metabolite in pathway_metabolites
         }
         self.all_reactions = {
             m.name: find_reactions_with_metabolite(self.pathway.reactions, m) for m in self.all_metabolites.values()
@@ -46,7 +46,7 @@ class PathwayGraph(object):
         self.cofactors = set([key for key, reactions in self.all_reactions.items() if len(reactions) > 2])
         self.primary_nodes = {}
         self.graph = nx.DiGraph()
-        self.fill_reactions_graph(self.all_metabolites[self.final_product], [r for r in self.pathway.reactions], None)
+        self.fill_reactions_graph(self.all_metabolites[self.final_product_id], [r for r in self.pathway.reactions], None)
         self.sorted_reactions = nx.topological_sort(self.graph)
         self.sorted_primary_nodes = [self.primary_nodes[reaction] for reaction in self.sorted_reactions]
 
@@ -62,7 +62,7 @@ class PathwayGraph(object):
             return
         reaction = rs[0]
         self.primary_nodes[reaction] = start
-        if start.name == self.final_product:
+        if start.id == self.final_product_id:
             self.graph.add_node(reaction)
         else:
             self.graph.add_edge(reaction, prev_reaction)
