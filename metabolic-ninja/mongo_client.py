@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import datetime
-from pymongo import MongoClient, ASCENDING, DESCENDING
+from pymongo import MongoClient, ASCENDING
 
 logging.basicConfig()
 logger = logging.getLogger('mongo_client')
@@ -55,37 +55,26 @@ class PathwayCollection(MongoDB):
     Pymongo methods wrapper for simpler calls to model specific databases, defined by model, universal model,
     carbon source and product
     """
-    def __init__(self, model_id, universal_model_id, carbon_source_id, product_id):
+    def __init__(self, key):
         super(PathwayCollection, self).__init__()
-        self.model_id = model_id
-        self.universal_model_id = universal_model_id
-        self.carbon_source_id = carbon_source_id
-        self.product_id = product_id
+        self.key = key
         self.pathways = self.mongo_client.pathways.pathways
-        self.key = {
-            "model_id": self.model_id,
-            "universal_model_id": self.universal_model_id,
-            "carbon_source_id": self.carbon_source_id,
-            "product_id": self.product_id
-        }
-        self.pathways.create_index({
-            k: 1 for k, v in self.key.items()
-        })
+        for k, v in self.key.items():
+            setattr(self, k, v)
+        self.pathways.create_index([(k, ASCENDING) for k in self.key])
 
     def upsert(self):
         timestamp = datetime.now()
+        data = {
+            "pathways": [],
+            "ready": False,
+            "created": timestamp,
+            "updated": timestamp,
+        }
+        data.update(self.key)
         self.pathways.update(
             self.key,
-            {'$set': {
-                "pathways": [],
-                "ready": False,
-                "created": timestamp,
-                "updated": timestamp,
-                "model_id": self.model_id,
-                "universal_model_id": self.universal_model_id,
-                "carbon_source_id": self.carbon_source_id,
-                "product": self.product_id,
-            }},
+            {'$set': data},
             upsert=True
         )
 

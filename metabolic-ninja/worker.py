@@ -25,7 +25,7 @@ def append_pathway(mongo_client, pathway):
 class WorkerHandler(rpc.AttrHandler):
     @rpc.method
     def predict_pathways(self, key: dict):
-        mongo_client = PathwayCollection(**key)
+        mongo_client = PathwayCollection(key)
         try:
             predictor = get_predictor(mongo_client.model_id, mongo_client.universal_model_id)
             logger.debug("Starting pathway prediction: {}".format(mongo_client.key))
@@ -76,11 +76,11 @@ class WorkerHandler(rpc.AttrHandler):
         all_products = defaultdict(lambda: [])
         for universal_model in vars(models.universal).keys():
             for product in getattr(models.universal, universal_model).metabolites:
-                all_products[product].append(universal_model)
+                all_products[product.name].append(universal_model)
         MongoDB().insert_product_list(
             [{
-                 'id': k.id,
-                 'name': k.name,
+                 'id': k,
+                 'name': k,
                  'universal_models': v
              } for k, v in all_products.items()]
         )

@@ -26,7 +26,7 @@ def prediction_is_ready(product_document):
 
 def start_prediction(mongo_client):
     mongo_client.upsert()
-    client.call.predict_pathways(**mongo_client.key)
+    client.call.predict_pathways(mongo_client.key)
 
 
 @asyncio.coroutine
@@ -36,7 +36,7 @@ def run_predictor(request):
     if not product_exists:
         return web.HTTPNotFound(text="No such key")
 
-    mongo_client = PathwayCollection(**key)
+    mongo_client = PathwayCollection(key)
     product_document = mongo_client.find()
     if prediction_is_ready(product_document):
         logger.debug("Ready: {}".format(key))
@@ -55,7 +55,7 @@ def run_predictor(request):
 @asyncio.coroutine
 def pathways(request):
     key = {attr: request.GET[attr] for attr in ('product_id', 'model_id', 'universal_model_id', 'carbon_source_id')}
-    mongo_client = PathwayCollection(**key)
+    mongo_client = PathwayCollection(key)
     product_document = mongo_client.find()
     result = []
     if product_document:
@@ -64,28 +64,28 @@ def pathways(request):
 
 
 def json_response(collection):
-    return web.json_response([{'id': m['_id'], 'name': m['name']} for m in collection.find()])
+    return web.json_response([{'id': m['_id'], 'name': m['name']} for m in collection])
 
 
 @asyncio.coroutine
 def universal_model_list(request):
-    return json_response(MongoDB().universal_models)
+    return json_response(MongoDB().universal_models.find())
 
 
 @asyncio.coroutine
 def carbon_source_list(request):
-    return json_response(MongoDB().carbon_sources)
+    return json_response(MongoDB().carbon_sources.find())
 
 
 @asyncio.coroutine
 def model_list(request):
-    return json_response(MongoDB().models)
+    return json_response(MongoDB().models.find())
 
 
 @asyncio.coroutine
 def product_list(request):
     universal_model = request.GET['universal_model_id']
-    return web.json_response([p['_id'] for p in MongoDB().products.find({'universal_models': {'$in': [universal_model]}})])
+    return json_response(MongoDB().products.find({'universal_models': {'$in': [universal_model]}}))
 
 
 app = web.Application()
