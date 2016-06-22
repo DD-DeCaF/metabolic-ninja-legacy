@@ -63,9 +63,11 @@ def load_predictor(model_id, universal_model_id):
 
 
 def generate_predictor(model_id, universal_model_id):
+    universal_model = getattr(models.universal, universal_model_id)
+    model = getattr(models.bigg, model_id) if model_id != universal_model_id else universal_model
     pathway_predictor = PathwayPredictor(
-        model=getattr(models.bigg, model_id),
-        universal_model=getattr(models.universal, universal_model_id),
+        model=model,
+        universal_model=universal_model,
         compartment_regexp=re.compile(".*_c$")
     )
     pathway_predictor.model.solver.problem.parameters.tune_problem()

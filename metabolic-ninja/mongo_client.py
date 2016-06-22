@@ -44,10 +44,12 @@ class MongoDB(object):
         self._insert_all(self.carbon_sources, carbon_sources)
 
     def is_available(self, model_id, universal_model_id, carbon_source_id, product_id):
-        return self.models.find_one(model_id) and \
-               self.universal_models.find_one(universal_model_id) and \
-               self.carbon_sources.find_one(carbon_source_id) and \
-               self.products.find_one({"_id": product_id, 'universal_models': {'$in': [universal_model_id]}})
+        return (
+            self.universal_models.find_one(universal_model_id) and
+            (model_id == universal_model_id or self.models.find_one(model_id)) and
+            self.carbon_sources.find_one(carbon_source_id) and
+            self.products.find_one({"_id": product_id, 'universal_models': {'$in': [universal_model_id]}})
+        )
 
 
 class PathwayCollection(MongoDB):
