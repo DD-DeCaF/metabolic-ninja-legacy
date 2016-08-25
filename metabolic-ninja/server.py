@@ -89,9 +89,9 @@ def product_list(request):
 
 
 app = web.Application()
-API_PREFIX = '/api'
+API_PREFIX = '/pathways'
 LISTS_PREFIX = API_PREFIX + '/lists'
-app.router.add_route('GET', API_PREFIX, run_predictor)
+app.router.add_route('GET', API_PREFIX + '/predict', run_predictor)
 app.router.add_route('GET', API_PREFIX + '/pathways', pathways)
 app.router.add_route('GET', LISTS_PREFIX + '/product', product_list)
 app.router.add_route('GET', LISTS_PREFIX + '/model', model_list)
