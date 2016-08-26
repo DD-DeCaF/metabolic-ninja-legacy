@@ -1,5 +1,5 @@
 FROM python:3.4
-RUN pip install aiohttp aiozmq msgpack-python motor
+RUN pip install aiohttp aiozmq msgpack-python motor aiohttp_cors
 
 ADD ./metabolic-ninja/server.py .
 ADD ./metabolic-ninja/mongo_client.py .

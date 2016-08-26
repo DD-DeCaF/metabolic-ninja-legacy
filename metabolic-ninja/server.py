@@ -1,4 +1,5 @@
 import asyncio
+import aiohttp_cors
 import logging
 from datetime import datetime, timedelta
 from aiohttp import web
@@ -97,6 +98,19 @@ app.router.add_route('GET', LISTS_PREFIX + '/product', product_list)
 app.router.add_route('GET', LISTS_PREFIX + '/model', model_list)
 app.router.add_route('GET', LISTS_PREFIX + '/universal_model', universal_model_list)
 app.router.add_route('GET', LISTS_PREFIX + '/carbon_source', carbon_source_list)
+
+# Configure default CORS settings.
+cors = aiohttp_cors.setup(app, defaults={
+    "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+})
+
+# Configure CORS on all routes.
+for route in list(app.router.routes()):
+    cors.add(route)
 
 
 @asyncio.coroutine
