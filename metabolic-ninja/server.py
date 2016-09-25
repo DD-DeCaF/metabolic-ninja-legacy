@@ -86,7 +86,16 @@ def model_list(request):
 @asyncio.coroutine
 def product_list(request):
     universal_model = request.GET['universal_model_id']
-    return json_response(MongoDB().products.find({'universal_models': {'$in': [universal_model]}}))
+
+    def has_prediction(key):
+        mongo_client = PathwayCollection(key)
+        return prediction_is_ready(mongo_client.find())
+
+    return json_response(
+        [m for m in
+         MongoDB().products.find({'universal_models': {'$in': [universal_model]}}).items()
+         if has_prediction(m['_id'])]
+    )
 
 
 app = web.Application()
@@ -102,10 +111,10 @@ app.router.add_route('GET', LISTS_PREFIX + '/carbon_source', carbon_source_list)
 # Configure default CORS settings.
 cors = aiohttp_cors.setup(app, defaults={
     "*": aiohttp_cors.ResourceOptions(
-            allow_credentials=True,
-            expose_headers="*",
-            allow_headers="*",
-        )
+        allow_credentials=True,
+        expose_headers="*",
+        allow_headers="*",
+    )
 })
 
 # Configure CORS on all routes.
@@ -118,12 +127,12 @@ def start(loop):
     global client
     logger.debug('Connect to RPC server')
     client = yield from rpc.connect_rpc(bind='tcp://0.0.0.0:5555')
-    logger.debug('Calling for list of models')
-    yield from client.call.create_list_of_models()
-    logger.debug('Calling for list of universal models')
-    yield from client.call.create_list_of_universal_models()
-    logger.debug('Calling for list of products')
-    yield from client.call.create_list_of_products()
+    # logger.debug('Calling for list of models')
+    # yield from client.call.create_list_of_models()
+    # logger.debug('Calling for list of universal models')
+    # yield from client.call.create_list_of_universal_models()
+    # logger.debug('Calling for list of products')
+    # yield from client.call.create_list_of_products()
     logger.debug('Calling for list of carbon sources')
     yield from client.call.create_list_of_carbon_sources()
     logger.debug('Starting web server')
