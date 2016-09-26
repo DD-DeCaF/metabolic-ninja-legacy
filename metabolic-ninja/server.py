@@ -87,13 +87,19 @@ def model_list(request):
 def product_list(request):
     universal_model = request.GET['universal_model_id']
 
-    def has_prediction(key):
+    def has_prediction(product_id):
+        key = dict(
+            universal_model_id=universal_model,
+            model_id='iJO1366',
+            product_id=product_id,
+            carbon_source_id='EX_glc_lp_e_rp_',
+        )
         mongo_client = PathwayCollection(key)
         return prediction_is_ready(mongo_client.find())
 
     return json_response(
         [m for m in
-         MongoDB().products.find({'universal_models': {'$in': [universal_model]}}).items()
+         MongoDB().products.find({'universal_models': {'$in': [universal_model]}})
          if has_prediction(m['_id'])]
     )
 
