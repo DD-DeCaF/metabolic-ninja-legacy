@@ -1,12 +1,10 @@
-FROM biosustain/cobra-cplex:latest
-RUN apt-get install -y gcc-multilib
+FROM biosustain/cameo-light:f102b9742ca5
 ADD requirements.txt requirements.txt
-RUN /bin/bash -c "/opt/conda/envs/python3.4/bin/pip install -r requirements.txt"
-
+RUN pip install -r requirements.txt
 ADD ./metabolic-ninja/worker.py .
 ADD ./metabolic-ninja/utils.py .
 ADD ./metabolic-ninja/mongo_client.py .
 ADD ./metabolic-ninja/pathway_graph.py .
 
-ENTRYPOINT ["/opt/conda/envs/python3.4/bin/python"]
+ENTRYPOINT ["python"]
 CMD ["worker.py"]

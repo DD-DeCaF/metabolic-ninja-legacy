@@ -61,7 +61,7 @@ class WorkerHandler(rpc.AttrHandler):
 
     @rpc.method
     def create_list_of_carbon_sources(self):
-        logger.debug("Creating models list")
+        logger.debug("Creating carbon sources list")
         carbon_sources = ['EX_glc_lp_e_rp_']
         MongoDB().insert_carbon_sources_list(
             [{
