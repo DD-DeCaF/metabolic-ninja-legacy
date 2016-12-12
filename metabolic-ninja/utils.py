@@ -3,6 +3,7 @@ import re
 import pickle
 import logging
 import json
+from functools import lru_cache
 from copy import deepcopy
 import cobra
 from cameo import load_model, models
@@ -44,6 +45,7 @@ def metabolite_to_dict(metabolite):
     )
 
 
+@lru_cache(2**5)
 def get_predictor(model_id, universal_model_id):
     if os.path.exists(PICKLED_PREDICTOR_PATH.format(model_id, universal_model_id)):
         logger.debug('Cached model found.')
