@@ -81,7 +81,7 @@ def append_pathway(mongo_client, pathway):
     all_met_ids = bigg_ids([met.nice_id for reaction in pathway.reactions for met in reaction.metabolites])
     for reaction in pathway.reactions:
         for metabolite in reaction.metabolites:
-            metabolite.nice_id = all_met_ids[metabolite.nice_id]
+            metabolite.nice_id = all_met_ids[metabolite.nice_id][0] if all_met_ids[metabolite.nice_id] else metabolite.nice_id
             metabolite.id = metabolite.nice_id
     pathway_graph = PathwayGraph(pathway, mongo_client.product_id)
     reactions_list = [reaction_to_dict(reaction) for reaction in pathway_graph.sorted_reactions]
