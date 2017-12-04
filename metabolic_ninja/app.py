@@ -78,7 +78,7 @@ def bigg_ids(object_ids):
 
 def append_pathway(mongo_client, pathway):
     logger.debug("{}: pathway is ready, add to mongo".format(mongo_client.key))
-    all_met_ids = [met.nice_id for reaction in pathway.reactions for met in reaction.metabolites]
+    all_met_ids = bigg_ids([met.nice_id for reaction in pathway.reactions for met in reaction.metabolites])
     for reaction in pathway.reactions:
         for metabolite in reaction.metabolites:
             metabolite.nice_id = all_met_ids[metabolite.nice_id]
