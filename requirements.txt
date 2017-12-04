@@ -1,7 +1,7 @@
 aiohttp==1.3.5
 aiozmq
 msgpack-python
-git+https://github.com/biosustain/cameo.git@devel#egg=cameo
+cameo==0.11.3
 pymongo
 motor
 aiohttp_cors==0.5.2

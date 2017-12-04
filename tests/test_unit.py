@@ -1,6 +1,5 @@
 from collections import namedtuple
-from cameo import Reaction, Metabolite
-from cameo.core.solver_based_model import SolverBasedModel
+from cobra.core import Reaction, Metabolite, Model
 from metabolic_ninja.pathway_graph import PathwayGraph
 
 
@@ -8,9 +7,9 @@ Pathway = namedtuple('Pathway', ['reactions'])
 
 
 def test_pathway_graph():
-    model = SolverBasedModel()
+    model = Model()
     for m in ['A', 'B', 'C', 'D', 'K', 'L', 'M', 'N']:
-        model.add_metabolite(Metabolite(id=m, name=m))
+        model.add_metabolites([Metabolite(id=m, name=m)])
     reaction1 = Reaction('1')
     reaction2 = Reaction('2')
     reaction3 = Reaction('3')
