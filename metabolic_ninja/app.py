@@ -13,6 +13,7 @@ from pymongo import MongoClient, ASCENDING
 from metabolic_ninja.pathway_graph import PathwayGraph
 from metabolic_ninja.mongo_client import MongoDB, PathwayCollection, MONGO_CRED
 from metabolic_ninja.pickle_predictors import get_predictor
+from metabolic_ninja.middleware import raven_middleware
 
 
 logging.basicConfig()
@@ -184,7 +185,7 @@ async def ws_handler(request):
     return ws
 
 
-app = web.Application()
+app = web.Application(middlewares=[raven_middleware])
 API_PREFIX = '/pathways'
 LISTS_PREFIX = API_PREFIX + '/lists'
 app.router.add_route('GET', API_PREFIX + '/predict', run_predictor)

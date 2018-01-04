@@ -10,3 +10,4 @@ gunicorn
 uvloop
 pytest-cov==2.4.0
 codecov
+raven==6.4.0
