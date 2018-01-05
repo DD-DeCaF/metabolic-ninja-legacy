@@ -1,6 +1,8 @@
 import logging
+import os
 from datetime import datetime, timedelta
 import asyncio
+import requests
 import sys
 import traceback
 import json
@@ -68,8 +70,20 @@ def start_prediction(mongo_client):
     predict_pathways(mongo_client.key)
 
 
+def bigg_ids(object_ids):
+    query = json.dumps({'ids': object_ids, 'dbFrom': 'mnx', 'dbTo': 'bigg', 'type': 'Metabolite'})
+    r = requests.post(os.environ['ID_MAPPER_API'], data=query)
+    return r.json()['ids']
+
+
+
 def append_pathway(mongo_client, pathway):
     logger.debug("{}: pathway is ready, add to mongo".format(mongo_client.key))
+    all_met_ids = bigg_ids([met.nice_id for reaction in pathway.reactions for met in reaction.metabolites])
+    for reaction in pathway.reactions:
+        for metabolite in reaction.metabolites:
+            metabolite.nice_id = all_met_ids[metabolite.nice_id][0] if all_met_ids[metabolite.nice_id] else metabolite.nice_id
+            metabolite.id = metabolite.nice_id
     pathway_graph = PathwayGraph(pathway, mongo_client.product_id)
     reactions_list = [reaction_to_dict(reaction) for reaction in pathway_graph.sorted_reactions]
     primary_nodes = [metabolite_to_dict(metabolite) for metabolite in pathway_graph.sorted_primary_nodes]

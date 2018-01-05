@@ -8,4 +8,3 @@ ADD . ./metabolic-ninja
 WORKDIR metabolic-ninja
 
 ENV PYTHONPATH $PYTHONPATH:/metabolic-ninja
-RUN pwd
