@@ -1,18 +1,11 @@
 server:
   build: .
   ports:
-    - "9000:8080"
-  dockerfile: Dockerfile-server-development
+    - "9000:8000"
+  dockerfile: Dockerfile
   links:
     - mongo
-  volumes:
-    - ./:/metabolic-ninja
-worker:
-  build: .
-  dockerfile: Dockerfile-worker
-  links:
-    - server
-    - mongo
+  command: 'sh -c "python metabolic_ninja/fill_lists.py && gunicorn -t 12000 -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:8000 -w 4 metabolic_ninja.app:app"'
 mongo:
   image: mongo
   ports:

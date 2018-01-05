@@ -1,0 +1,16 @@
+sudo: required
+language: python
+services:
+- docker
+before_install:
+- docker login -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD
+install: docker-compose up -d
+script:
+- docker-compose exec server /bin/bash -c "py.test --cov=./metabolic_ninja tests/"
+after_success:
+- docker-compose exec server /bin/bash -c "codecov --token $CODECOV_TOKEN"
+deploy:
+  provider: script
+  script: ./push_to_hub_travis.sh
+  on:
+    all_branches: true
