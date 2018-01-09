@@ -1,5 +1,6 @@
 import logging
 import os
+import copy
 from datetime import datetime, timedelta
 import asyncio
 import requests
@@ -78,14 +79,15 @@ def bigg_ids(object_ids):
 
 def append_pathway(mongo_client, pathway):
     logger.debug("{}: pathway is ready, add to mongo".format(mongo_client.key))
-    map_metabolites_ids_to_bigg(pathway)
+    pathway = map_metabolites_ids_to_bigg(pathway)
     pathway_graph = PathwayGraph(pathway, mongo_client.product_id)
     reactions_list = [reaction_to_dict(reaction) for reaction in pathway_graph.sorted_reactions]
     primary_nodes = [metabolite_to_dict(metabolite) for metabolite in pathway_graph.sorted_primary_nodes]
     mongo_client.append_pathway(reactions_list, pathway_to_model(pathway), primary_nodes)
 
 
-def map_metabolites_ids_to_bigg(pathway):
+def map_metabolites_ids_to_bigg(pathway_original):
+    pathway = copy.deepcopy(pathway_original)
     all_met_ids = bigg_ids(
         [met.id for reaction in pathway.reactions for met in
          reaction.metabolites])
@@ -93,6 +95,7 @@ def map_metabolites_ids_to_bigg(pathway):
         for metabolite in reaction.metabolites:
             metabolite.id = all_met_ids[metabolite.id][0] + '_c' \
                 if metabolite.id in all_met_ids else metabolite.id
+    return pathway
 
 
 async def run_predictor(request):

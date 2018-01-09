@@ -14,8 +14,10 @@ def test_map_metabolites_ids_to_bigg():
     reaction1.build_reaction_from_string('MNXM1671 + MNXM1747 <=> MNXM1251')
     reaction2.build_reaction_from_string('impossible <=> MNXM1747')
     pathway = Pathway([reaction1, reaction2])
-    map_metabolites_ids_to_bigg(pathway)
+    pathway_copy = map_metabolites_ids_to_bigg(pathway)
     assert set([m.id for m in pathway.reactions[0].metabolites]) == \
+           {'MNXM1671', 'MNXM1747', 'MNXM1251'}
+    assert set([m.id for m in pathway_copy.reactions[0].metabolites]) == \
            {'itaccoa_c', 'itacon_c', 'citmcoa__L_c'}
-    assert set([m.id for m in pathway.reactions[1].metabolites]) == \
+    assert set([m.id for m in pathway_copy.reactions[1].metabolites]) == \
            {'impossible', 'itacon_c'}
