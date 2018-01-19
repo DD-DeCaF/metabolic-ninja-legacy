@@ -3,3 +3,5 @@ cache.pickle
 .DS_Store
 __pycache__
 .env
+env
+.cache

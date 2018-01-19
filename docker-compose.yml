@@ -5,6 +5,8 @@ server:
   dockerfile: Dockerfile
   links:
     - mongo
+  environment:
+    - ID_MAPPER_API=https://api.dd-decaf.eu/idmapping/query
   command: 'sh -c "python metabolic_ninja/fill_lists.py && gunicorn -t 12000 -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:8000 -w 4 metabolic_ninja.app:app"'
 mongo:
   image: mongo

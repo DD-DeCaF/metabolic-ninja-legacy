@@ -48,7 +48,7 @@ class PathwayGraph(object):
         self.primary_nodes = {}
         self.graph = nx.DiGraph()
         self._fill_reactions_graph(self.all_metabolites[self.final_product], [r for r in self.pathway.reactions], None)
-        self.sorted_reactions = nx.topological_sort(self.graph)
+        self.sorted_reactions = list(nx.topological_sort(self.graph))
         self.sorted_primary_nodes = [self.primary_nodes[reaction] for reaction in self.sorted_reactions]
 
     def _not_secondary_metabolites(self, reaction, metabolite):
