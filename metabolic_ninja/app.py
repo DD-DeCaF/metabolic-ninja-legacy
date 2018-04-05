@@ -68,7 +68,8 @@ def prediction_is_ready(product_document):
 
 def start_prediction(mongo_client):
     mongo_client.upsert()
-    predict_pathways(mongo_client.key)
+    loop = asyncio.get_event_loop()
+    loop.create_task(predict_pathways(mongo_client.key))
 
 
 def bigg_ids(object_ids):
@@ -151,7 +152,7 @@ async def product_list(request):
     return json_response(MongoDB(mongo_client=MONGO_CLIENT).products.find({'universal_models': {'$in': [universal_model]}}))
 
 
-def predict_pathways(key: dict):
+async def predict_pathways(key: dict):
     logger.info(get_predictor.cache_info())
     mongo_client = PathwayCollection(key, mongo_client=MONGO_CLIENT)
     mongo_client.pathways.create_index([(k, ASCENDING) for k in key])
