@@ -17,6 +17,7 @@ from metabolic_ninja.pathway_graph import PathwayGraph
 from metabolic_ninja.mongo_client import MongoDB, PathwayCollection, MONGO_CRED
 from metabolic_ninja.pickle_predictors import get_predictor
 from metabolic_ninja.middleware import raven_middleware
+from metabolic_ninja.healthz import healthz
 
 
 logging.basicConfig()
@@ -211,6 +212,7 @@ async def ws_handler(request):
 app = web.Application(middlewares=[raven_middleware])
 API_PREFIX = '/pathways'
 LISTS_PREFIX = API_PREFIX + '/lists'
+app.router.add_route('GET', API_PREFIX + '/healthz', healthz)
 app.router.add_route('GET', API_PREFIX + '/predict', run_predictor)
 app.router.add_route('GET', API_PREFIX + '/ws', ws_handler)
 app.router.add_route('GET', API_PREFIX + '/pathways', pathways)
