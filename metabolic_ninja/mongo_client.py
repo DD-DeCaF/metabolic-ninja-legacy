@@ -3,11 +3,13 @@ import logging
 from datetime import datetime
 from pymongo import MongoClient, ASCENDING
 
+from . import settings
+
 logging.basicConfig()
 logger = logging.getLogger('mongo_client')
 logger.setLevel(logging.DEBUG)
 
-MONGO_CRED = (os.environ['MONGO_PORT_27017_TCP_ADDR'], 27017)
+MONGO_CRED = (settings.MONGO_ADDR, settings.MONGO_PORT)
 
 
 class MongoDB(object):

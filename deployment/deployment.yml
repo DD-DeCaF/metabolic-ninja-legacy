@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metabolic-ninja-production
+spec:
+  selector:
+    matchLabels:
+      app: metabolic-ninja
+      env: production
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: metabolic-ninja
+        env: production
+    spec:
+      containers:
+      - name: web
+        image: gcr.io/dd-decaf-cfbf6/metabolic-ninja:master
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MONGO_ADDR
+          value: localhost
+        - name: MONGO_PORT
+          value: "27017"
+        - name: ID_MAPPER_API
+          value: http://id-mapper-production/query
+        - name: SENTRY_DSN
+          valueFrom:
+            secretKeyRef:
+              name: metabolic-ninja-production
+              key: SENTRY_DSN
+        command: ["sh"]
+        args: ["-c", "python metabolic_ninja/fill_lists.py && gunicorn -t 12000 -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:8000 -w 4 metabolic_ninja.app:app"]
+      - name: mongo
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metabolic-ninja-staging
+spec:
+  selector:
+    matchLabels:
+      app: metabolic-ninja
+      env: staging
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: metabolic-ninja
+        env: staging
+    spec:
+      containers:
+      - name: web
+        image: gcr.io/dd-decaf-cfbf6/metabolic-ninja:devel
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MONGO_ADDR
+          value: localhost
+        - name: MONGO_PORT
+          value: "27017"
+        - name: ID_MAPPER_API
+          value: http://id-mapper-production/query
+        - name: SENTRY_DSN
+          valueFrom:
+            secretKeyRef:
+              name: metabolic-ninja-staging
+              key: SENTRY_DSN
+        command: ["sh"]
+        args: ["-c", "python metabolic_ninja/fill_lists.py && gunicorn -t 12000 -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:8000 -w 4 metabolic_ninja.app:app"]
+      - name: mongo
+        image: mongo:latest
+        ports:
+        - containerPort: 27017

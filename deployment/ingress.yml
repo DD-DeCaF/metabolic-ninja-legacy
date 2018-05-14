@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: metabolic-ninja-production
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.org/websocket-services: "metabolic-ninja-ws-production,metabolic-ninja-ws-staging"
+spec:
+  tls:
+  - hosts:
+    - api.dd-decaf.eu
+    - api-staging.dd-decaf.eu
+    secretName: decaf-tls
+  rules:
+  - host: api.dd-decaf.eu
+    http:
+      paths:
+      - path: /pathways
+        backend:
+          serviceName: metabolic-ninja-production
+          servicePort: 80
+      - path: /pathways/ws
+        backend:
+          serviceName: metabolic-ninja-ws-production
+          servicePort: 80
+  - host: api-staging.dd-decaf.eu
+    http:
+      paths:
+      - path: /pathways
+        backend:
+          serviceName: metabolic-ninja-staging
+          servicePort: 80
+      - path: /pathways/ws
+        backend:
+          serviceName: metabolic-ninja-ws-staging
+          servicePort: 80

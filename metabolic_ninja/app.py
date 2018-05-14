@@ -234,7 +234,7 @@ for route in list(app.router.routes()):
     cors.add(route)
 
 async def start(loop):
-    await loop.create_server(app.make_handler(), '0.0.0.0', 8080)
+    await loop.create_server(app.make_handler(), '0.0.0.0', 8000)
     logger.debug('Web server is up')
 
 

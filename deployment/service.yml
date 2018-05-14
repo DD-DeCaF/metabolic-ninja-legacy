@@ -1,0 +1,73 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: metabolic-ninja-production
+  annotations:
+    prometheus.io/probe: "true"
+spec:
+  selector:
+    app: metabolic-ninja
+    env: production
+    type: http
+  ports:
+  - name: api
+    protocol: TCP
+    port: 80
+    targetPort: 8000
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: metabolic-ninja-ws-production
+  annotations:
+    prometheus.io/probe: "true"
+spec:
+  selector:
+    app: metabolic-ninja
+    env: production
+    type: websocket
+  ports:
+  - name: ws
+    protocol: TCP
+    port: 80
+    targetPort: 8000
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: metabolic-ninja-staging
+  annotations:
+    prometheus.io/probe: "true"
+spec:
+  selector:
+    app: metabolic-ninja
+    env: staging
+    type: http
+  ports:
+  - name: api
+    protocol: TCP
+    port: 80
+    targetPort: 8000
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: metabolic-ninja-ws-staging
+  annotations:
+    prometheus.io/probe: "true"
+spec:
+  selector:
+    app: metabolic-ninja
+    env: staging
+    type: websocket
+  ports:
+  - name: ws
+    protocol: TCP
+    port: 80
+    targetPort: 8000
