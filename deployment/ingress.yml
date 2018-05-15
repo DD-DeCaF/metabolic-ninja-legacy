@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: metabolic-ninja-production
+  name: metabolic-ninja
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.org/websocket-services: "metabolic-ninja-ws-production,metabolic-ninja-ws-staging"
