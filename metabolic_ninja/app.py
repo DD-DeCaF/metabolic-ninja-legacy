@@ -31,6 +31,7 @@ from metabolic_ninja.pathway_graph import PathwayGraph
 from metabolic_ninja.mongo_client import MongoDB, PathwayCollection, MONGO_CRED
 from metabolic_ninja.pickle_predictors import get_predictor
 from metabolic_ninja.middleware import raven_middleware
+from metabolic_ninja.healthz import healthz
 
 
 logging.basicConfig()
@@ -223,15 +224,14 @@ async def ws_handler(request):
 
 
 app = web.Application(middlewares=[raven_middleware])
-API_PREFIX = '/pathways'
-LISTS_PREFIX = API_PREFIX + '/lists'
-app.router.add_route('GET', API_PREFIX + '/predict', run_predictor)
-app.router.add_route('GET', API_PREFIX + '/ws', ws_handler)
-app.router.add_route('GET', API_PREFIX + '/pathways', pathways)
-app.router.add_route('GET', LISTS_PREFIX + '/product', product_list)
-app.router.add_route('GET', LISTS_PREFIX + '/model', model_list)
-app.router.add_route('GET', LISTS_PREFIX + '/universal_model', universal_model_list)
-app.router.add_route('GET', LISTS_PREFIX + '/carbon_source', carbon_source_list)
+app.router.add_route('GET', '/healthz', healthz)
+app.router.add_route('GET', '/predict', run_predictor)
+app.router.add_route('GET', '/ws', ws_handler)
+app.router.add_route('GET', '/pathways', pathways)
+app.router.add_route('GET', '/lists/product', product_list)
+app.router.add_route('GET', '/lists/model', model_list)
+app.router.add_route('GET', '/lists/universal_model', universal_model_list)
+app.router.add_route('GET', '/lists/carbon_source', carbon_source_list)
 
 
 # Configure default CORS settings.
@@ -248,7 +248,7 @@ for route in list(app.router.routes()):
     cors.add(route)
 
 async def start(loop):
-    await loop.create_server(app.make_handler(), '0.0.0.0', 8080)
+    await loop.create_server(app.make_handler(), '0.0.0.0', 8000)
     logger.debug('Web server is up')
 
 
