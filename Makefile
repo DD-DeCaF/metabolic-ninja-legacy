@@ -29,12 +29,12 @@ qa: test
 
 ## Run the tests.
 test:
-	-docker-compose run --rm -e ENVIRONMENT=production web /bin/sh -c "pytest -s --cov=src/metabolic-ninja tests"
+	-docker-compose run --rm -e ENVIRONMENT=production web pytest -s tests
 
 ## Run the tests and report coverage (see https://docs.codecov.io/docs/testing-with-docker).
 test-travis:
 	$(eval ci_env=$(shell bash <(curl -s https://codecov.io/env)))
-	docker-compose run --rm -e ENVIRONMENT=production $(ci_env) web /bin/sh -c "pytest -s --cov=src/metabolic-ninja tests && codecov"
+	docker-compose run --rm -e ENVIRONMENT=production $(ci_env) web sh -c "py.test --cov=./src/metabolic_ninja tests && codecov --token $CODECOV_TOKEN"
 
 ## Stop all services.
 stop:

@@ -17,10 +17,10 @@ before_install:
   - echo ${DOCKER_PASSWORD} | docker login -u=decaftravis --password-stdin
 
 install:
-  - docker build -t ${IMAGE} .
+  - make setup build
 
 script:
-  - docker-compose run --rm server sh -c "py.test --cov=./metabolic_ninja tests && codecov --token $CODECOV_TOKEN"
+  - make test-travis
 
 before_deploy:
   - ./scripts/install_gcloud.sh
