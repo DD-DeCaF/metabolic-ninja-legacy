@@ -4,7 +4,7 @@ metadata:
   name: metabolic-ninja
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.org/websocket-services: "metabolic-ninja-ws-production,metabolic-ninja-ws-staging"
+    nginx.org/websocket-services: "metabolic-ninja-production,metabolic-ninja-staging"
 spec:
   tls:
   - hosts:
@@ -19,18 +19,10 @@ spec:
         backend:
           serviceName: metabolic-ninja-production
           servicePort: 80
-      - path: /pathways/ws
-        backend:
-          serviceName: metabolic-ninja-ws-production
-          servicePort: 80
   - host: api-staging.dd-decaf.eu
     http:
       paths:
       - path: /pathways
         backend:
           serviceName: metabolic-ninja-staging
-          servicePort: 80
-      - path: /pathways/ws
-        backend:
-          serviceName: metabolic-ninja-ws-staging
           servicePort: 80
