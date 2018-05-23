@@ -33,7 +33,7 @@ spec:
         - name: MONGO_PORT
           value: "27017"
         - name: ID_MAPPER_API
-          value: http://id-mapper-production/query
+          value: http://id-mapper-production/idmapping/query
         - name: SENTRY_DSN
           valueFrom:
             secretKeyRef:
@@ -95,7 +95,7 @@ spec:
         - name: MONGO_PORT
           value: "27017"
         - name: ID_MAPPER_API
-          value: http://id-mapper-production/query
+          value: http://id-mapper-production/idmapping/query
         - name: SENTRY_DSN
           valueFrom:
             secretKeyRef:
