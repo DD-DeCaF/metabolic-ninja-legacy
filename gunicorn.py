@@ -27,7 +27,6 @@ accesslog = "-"
 
 if _config == "production":
     workers = os.cpu_count() * 2 + 1
-    preload_app = True
     loglevel = "INFO"
 else:
     workers = 1
