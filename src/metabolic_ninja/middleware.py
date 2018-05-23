@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from settings import raven_client
 import logging
+
+from . import raven_client
 
 
 logger = logging.getLogger(__name__)
