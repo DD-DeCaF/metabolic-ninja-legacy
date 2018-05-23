@@ -34,9 +34,7 @@ from metabolic_ninja.middleware import raven_middleware
 from metabolic_ninja.healthz import healthz
 
 
-logging.basicConfig()
-logger = logging.getLogger('server')
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 MAX_PREDICTIONS = 10
 

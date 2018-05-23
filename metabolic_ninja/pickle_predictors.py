@@ -22,7 +22,7 @@ from cameo.strain_design.pathway_prediction import PathwayPredictor
 
 
 logging.basicConfig()
-logger = logging.getLogger('metabolic-ninja')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 

@@ -20,7 +20,7 @@ from pymongo import MongoClient, ASCENDING
 from . import settings
 
 logging.basicConfig()
-logger = logging.getLogger('mongo_client')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 MONGO_CRED = (settings.MONGO_ADDR, settings.MONGO_PORT)

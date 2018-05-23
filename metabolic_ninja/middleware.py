@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import raven_client
+from settings import raven_client
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 async def raven_middleware(app, handler):

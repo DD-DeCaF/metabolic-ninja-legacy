@@ -18,9 +18,7 @@ from metabolic_ninja.mongo_client import MongoDB
 from collections import defaultdict
 
 
-logging.basicConfig()
-logger = logging.getLogger('server')
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 def create_list_of_models():

@@ -17,3 +17,34 @@ import os
 MONGO_ADDR = os.environ['MONGO_ADDR']
 MONGO_PORT = int(os.environ['MONGO_PORT'])
 SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': "%(asctime)s [%(levelname)s] [%(name)s] %(filename)s:%(funcName)s:%(lineno)d | %(message)s",
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'sentry': {
+            'level': 'WARNING',
+            'class': 'raven.handlers.logging.SentryHandler',
+            'dsn': SENTRY_DSN,
+        },
+    },
+    'loggers': {
+        # All loggers will by default use the root logger below (and
+        # hence be very verbose). To silence spammy/uninteresting log
+        # output, add the loggers here and increase the loglevel.
+    },
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['console'],
+    },
+}
