@@ -10,7 +10,17 @@
 [![devel Codecov](https://codecov.io/gh/DD-DeCaF/metabolic-ninja/branch/devel/graph/badge.svg)](https://codecov.io/gh/DD-DeCaF/metabolic-ninja/branch/devel)
 [![devel Requirements Status](https://requires.io/github/DD-DeCaF/metabolic-ninja/requirements.svg?branch=devel)](https://requires.io/github/DD-DeCaF/metabolic-ninja/requirements/?branch=devel)
 
-## Environment
+## Development
+
+Type `make` to see frequently used workflow commands.
+
+### Data
+
+Install mongodb lists with:
+
+```make fill-lists```
+
+### Environment
 
 Specify environment variables in a `.env` file. See `docker-compose.yml` for the  possible variables and their default values.
 
