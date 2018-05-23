@@ -25,6 +25,8 @@ spec:
             port: 8000
           initialDelaySeconds: 5
         env:
+        - name: ENVIRONMENT
+          value: production
         - name: MONGO_ADDR
           value: localhost
         - name: MONGO_PORT
@@ -84,6 +86,8 @@ spec:
             port: 8000
           initialDelaySeconds: 5
         env:
+        - name: ENVIRONMENT
+          value: production
         - name: MONGO_ADDR
           value: localhost
         - name: MONGO_PORT
