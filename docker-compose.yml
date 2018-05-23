@@ -1,17 +1,29 @@
-server:
-  build: .
-  ports:
-    - "9000:8000"
-  links:
-    - mongo
-  volumes:
-    - .:/metabolic-ninja
-  environment:
-    - MONGO_ADDR=mongo
-    - MONGO_PORT=27017
-    - ID_MAPPER_API=https://api.dd-decaf.eu/idmapping/query
-  command: 'sh -c "python metabolic_ninja/fill_lists.py && gunicorn -t 12000 -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:8000 -w 4 metabolic_ninja.app:app"'
-mongo:
-  image: mongo
-  ports:
-    - "27017:27017"  # for debugging
+version: "3.1"
+services:
+  web:
+    build: .
+    image: gcr.io/dd-decaf-cfbf6/metabolic-ninja:${IMAGE_TAG:-latest}
+    networks:
+      default:
+      DD-DeCaF:
+        aliases:
+          - metabolic-ninja
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      - mongo
+    volumes:
+      - ".:/app"
+    environment:
+      - MONGO_ADDR=mongo
+      - MONGO_PORT=27017
+      - ID_MAPPER_API=https://api.dd-decaf.eu/idmapping/query
+    command: 'sh -c "python metabolic_ninja/fill_lists.py && gunicorn -t 12000 -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:8000 -w 4 metabolic_ninja.app:app"'
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"  # for debugging
+networks:
+  DD-DeCaF:
+    external: true

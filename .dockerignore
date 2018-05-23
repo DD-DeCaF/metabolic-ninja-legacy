@@ -1,0 +1,6 @@
+*
+!src/
+!pickles/
+!scripts/
+!tests/
+!requirements.txt
