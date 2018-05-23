@@ -27,7 +27,7 @@ accesslog = "-"
 
 if _config == "production":
     workers = os.cpu_count() * 2 + 1
-    loglevel = "INFO"
+    loglevel = "DEBUG"
 else:
     workers = 1
     reload = True
