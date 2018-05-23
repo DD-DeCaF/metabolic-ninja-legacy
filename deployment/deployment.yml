@@ -39,7 +39,7 @@ spec:
               name: metabolic-ninja-production
               key: SENTRY_DSN
         command: ["sh"]
-        args: ["-c", "python src/tools/fill_lists.py && gunicorn -c gunicorn.py -t 12000 -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:8000 -w 4 metabolic_ninja.app:app"]
+        args: ["-c", "python src/tools/fill_lists.py && gunicorn -c gunicorn.py metabolic_ninja.app:app"]
         resources:
           requests:
             cpu: "700m"
@@ -100,7 +100,7 @@ spec:
               name: metabolic-ninja-staging
               key: SENTRY_DSN
         command: ["sh"]
-        args: ["-c", "python src/tools/fill_lists.py && gunicorn -t 12000 -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:8000 -w 4 metabolic_ninja.app:app"]
+        args: ["-c", "python src/tools/fill_lists.py && gunicorn -c gunicorn.py metabolic_ninja.app:app"]
         resources:
           requests:
             cpu: "90m"

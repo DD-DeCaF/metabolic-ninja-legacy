@@ -3,4 +3,5 @@
 !pickles/
 !scripts/
 !tests/
+!gunicorn.py
 !requirements.txt
