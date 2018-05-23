@@ -14,10 +14,12 @@
 
 import logging
 from cameo import models
+from metabolic_ninja import settings
 from metabolic_ninja.mongo_client import MongoDB
 from collections import defaultdict
 
 
+logging.config.dictConfig(settings.LOGGING)
 logger = logging.getLogger(__name__)
 
 

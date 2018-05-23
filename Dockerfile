@@ -1,7 +1,7 @@
 FROM biosustain/cameo-solvers:647d6ebdf3dd
 
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH /app
+ENV PYTHONPATH /app/src
 
 WORKDIR /app
 
