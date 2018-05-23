@@ -17,6 +17,7 @@ spec:
       containers:
       - name: web
         image: gcr.io/dd-decaf-cfbf6/metabolic-ninja:master
+        imagePullPolicy: Always
         ports:
         - containerPort: 8000
         readinessProbe:
@@ -78,6 +79,7 @@ spec:
       containers:
       - name: web
         image: gcr.io/dd-decaf-cfbf6/metabolic-ninja:devel
+        imagePullPolicy: Always
         ports:
         - containerPort: 8000
         readinessProbe:
