@@ -38,7 +38,7 @@ def get_predictor(model_id, universal_model_id):
         logger.debug("{}/{}: no cached model found; generating and dumping".format(model_id, universal_model_id))
         predictor = generate_predictor(model_id, universal_model_id)
         dump_predictor(predictor, model_id, universal_model_id)
-    logger.debug("{}/{}: predictor is ready")
+    logger.debug("{}/{}: predictor is ready".format(model_id, universal_model_id))
     return predictor
 
 
