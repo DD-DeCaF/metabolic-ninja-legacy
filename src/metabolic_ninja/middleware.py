@@ -14,6 +14,8 @@
 
 import logging
 
+import aiohttp
+
 from . import raven_client
 
 
@@ -25,6 +27,9 @@ async def raven_middleware(app, handler):
     async def middleware_handler(request):
         try:
             return await handler(request)
+        except aiohttp.web.HTTPClientError:
+            # Do not capture client errors
+            raise
         except Exception:
             raven_client.captureException()
             raise
