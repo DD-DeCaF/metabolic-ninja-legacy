@@ -16,6 +16,7 @@ import logging
 import os
 import copy
 from datetime import datetime, timedelta
+import time
 import asyncio
 import requests
 import sys
@@ -32,6 +33,7 @@ from metabolic_ninja.mongo_client import MongoDB, PathwayCollection, MONGO_CRED
 from metabolic_ninja.pickle_predictors import get_predictor
 from metabolic_ninja.middleware import raven_middleware
 from metabolic_ninja.healthz import healthz
+from . import raven_client
 
 
 logger = logging.getLogger(__name__)
@@ -92,7 +94,7 @@ def bigg_ids(object_ids):
 
 
 def append_pathway(mongo_client, pathway):
-    logger.debug("{}: pathway is ready, add to mongo".format(mongo_client.key))
+    logger.debug("Pathway is ready, adding to mongo: {}".format(mongo_client.key))
     pathway = map_metabolites_ids_to_bigg(pathway)
     pathway_graph = PathwayGraph(pathway, mongo_client.product_id)
     reactions_list = [reaction_to_dict(reaction) for reaction in pathway_graph.sorted_reactions]
@@ -119,19 +121,25 @@ async def run_predictor(request):
         return web.HTTPNotFound(text="No such key")
     mongo_client = PathwayCollection(key, mongo_client=MONGO_CLIENT)
     product_document = mongo_client.find()
-    logger.info(get_predictor.cache_info())
+    logger.info("New prediction request: {}".format(key))
+
     if prediction_is_ready(product_document):
-        logger.debug("Ready: {}".format(key))
+        logger.debug("Cached prediction already exists: {}".format(key))
         return web.HTTPOk(text="Ready")
+
     if prediction_has_failed(product_document):
+        logger.debug("Prediction has failed; restarting: {}".format(key))
         mongo_client.remove()
         start_prediction(mongo_client)
-        logger.debug("Prediction for {} is failed, restarting".format(key))
         return web.HTTPAccepted(text="Prediction failed, restarting")
+
     if not product_document:
+        logger.debug("Starting new prediction: {}".format(key))
         start_prediction(mongo_client)
-        logger.debug("Call prediction for {}".format(key))
-    return web.HTTPAccepted(text="Accepted")
+        return web.HTTPAccepted(text="Accepted")
+    else:
+        logger.debug("Prediction already in progress (or not yet timed out): {}".format(key))
+        return web.HTTPAccepted(text="Already in progress (or not yet timed out)")
 
 
 async def pathways(request):
@@ -166,25 +174,26 @@ async def product_list(request):
 
 
 async def predict_pathways(key: dict):
-    logger.info(get_predictor.cache_info())
+    t = time.time()
+    logger.info("Starting prediction job: {}".format(key))
     mongo_client = PathwayCollection(key, mongo_client=MONGO_CLIENT)
     mongo_client.pathways.create_index([(k, ASCENDING) for k in key])
     try:
+        logger.debug("Getting predictor: {}".format(key))
         predictor = get_predictor(mongo_client.model_id, mongo_client.universal_model_id)
-        logger.debug("Starting pathway prediction: {}".format(mongo_client.key))
+        logger.debug("Starting pathway prediction: {}".format(key))
         predictor.run(
             product=mongo_client.product_id,
             max_predictions=MAX_PREDICTIONS,
             callback=partial(append_pathway, mongo_client),
         )
-    except:
-        ex_type, ex, tb = sys.exc_info()
-        traceback.print_tb(tb)
-        logger.debug("Error occured. Remove {}".format(mongo_client.key))
+    except Exception:
+        raven_client.captureException()
+        logger.error("Error during pathway prediction; removing key from mongodb: {}".format(key))
         mongo_client.remove()
         raise
     else:
-        logger.debug("Ready: {}".format(mongo_client.key))
+        logger.debug("Prediction complete in {:.2f}s: {}".format(time.time() - t, key))
         mongo_client.set_ready()
 
 
