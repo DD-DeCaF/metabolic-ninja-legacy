@@ -45,6 +45,6 @@ LOGGING = {
     },
     'root': {
         'level': 'DEBUG',
-        'handlers': ['console'],
+        'handlers': ['console', 'sentry'],
     },
 }
