@@ -11,3 +11,5 @@ uvloop
 pytest-cov==2.4.0
 codecov
 raven==6.4.0
+# Pin pip <10 until this fix is released in cameo https://github.com/biosustain/cameo/pull/207
+pip<10.0
