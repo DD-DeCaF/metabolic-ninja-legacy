@@ -4,7 +4,9 @@ metadata:
   name: metabolic-ninja
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.org/websocket-services: "metabolic-ninja-production,metabolic-ninja-staging"
+    # websocket support
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
 spec:
   tls:
   - hosts:
