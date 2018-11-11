@@ -2,8 +2,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: metabolic-ninja-production
-  annotations:
-    prometheus.io/probe: "true"
 spec:
   selector:
     app: metabolic-ninja
@@ -20,8 +18,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: metabolic-ninja-staging
-  annotations:
-    prometheus.io/probe: "true"
 spec:
   selector:
     app: metabolic-ninja
