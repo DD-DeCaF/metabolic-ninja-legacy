@@ -11,19 +11,3 @@ spec:
     protocol: TCP
     port: 80
     targetPort: 8000
-
----
-
-kind: Service
-apiVersion: v1
-metadata:
-  name: metabolic-ninja-staging
-spec:
-  selector:
-    app: metabolic-ninja
-    env: staging
-  ports:
-  - name: api
-    protocol: TCP
-    port: 80
-    targetPort: 8000

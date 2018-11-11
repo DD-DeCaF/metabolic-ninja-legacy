@@ -12,7 +12,6 @@ spec:
   tls:
   - hosts:
     - api.dd-decaf.eu
-    - api-staging.dd-decaf.eu
     secretName: decaf-tls
   rules:
   - host: api.dd-decaf.eu
@@ -21,11 +20,4 @@ spec:
       - path: /pathways
         backend:
           serviceName: metabolic-ninja-production
-          servicePort: 80
-  - host: api-staging.dd-decaf.eu
-    http:
-      paths:
-      - path: /pathways
-        backend:
-          serviceName: metabolic-ninja-staging
           servicePort: 80
