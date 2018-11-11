@@ -231,14 +231,14 @@ async def ws_handler(request):
 
 
 app = web.Application(middlewares=[raven_middleware])
-app.router.add_route('GET', '/healthz', healthz)
-app.router.add_route('GET', '/predict', run_predictor)
-app.router.add_route('GET', '/ws', ws_handler)
-app.router.add_route('GET', '/pathways', pathways)
-app.router.add_route('GET', '/lists/product', product_list)
-app.router.add_route('GET', '/lists/model', model_list)
-app.router.add_route('GET', '/lists/universal_model', universal_model_list)
-app.router.add_route('GET', '/lists/carbon_source', carbon_source_list)
+app.router.add_route('GET', '/pathways/healthz', healthz)
+app.router.add_route('GET', '/pathways/predict', run_predictor)
+app.router.add_route('GET', '/pathways/ws', ws_handler)
+app.router.add_route('GET', '/pathways/pathways', pathways)
+app.router.add_route('GET', '/pathways/lists/product', product_list)
+app.router.add_route('GET', '/pathways/lists/model', model_list)
+app.router.add_route('GET', '/pathways/lists/universal_model', universal_model_list)
+app.router.add_route('GET', '/pathways/lists/carbon_source', carbon_source_list)
 
 
 # Configure default CORS settings.
