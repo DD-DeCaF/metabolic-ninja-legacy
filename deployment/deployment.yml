@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: metabolic-ninja-production
+  name: metabolic-ninja-legacy
 spec:
   selector:
     matchLabels:
       app: metabolic-ninja
-      env: production
+      env: legacy
   replicas: 1
   template:
     metadata:
       labels:
         app: metabolic-ninja
-        env: production
+        env: legacy
     spec:
       containers:
       - name: web
@@ -37,7 +37,7 @@ spec:
         - name: SENTRY_DSN
           valueFrom:
             secretKeyRef:
-              name: metabolic-ninja-production
+              name: metabolic-ninja-legacy
               key: SENTRY_DSN
         command: ["sh"]
         args: ["-c", "python src/tools/fill_lists.py && gunicorn -c gunicorn.py metabolic_ninja.app:app"]

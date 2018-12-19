@@ -1,11 +1,11 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: metabolic-ninja-production
+  name: metabolic-ninja-legacy
 spec:
   selector:
     app: metabolic-ninja
-    env: production
+    env: legacy
   ports:
   - name: api
     protocol: TCP

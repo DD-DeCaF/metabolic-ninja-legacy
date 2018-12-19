@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: metabolic-ninja
+  name: metabolic-ninja-legacy
   annotations:
     kubernetes.io/ingress.class: "nginx"
     # websocket support
@@ -18,5 +18,5 @@ spec:
       paths:
       - path: /pathways
         backend:
-          serviceName: metabolic-ninja-production
+          serviceName: metabolic-ninja-legacy
           servicePort: 80
