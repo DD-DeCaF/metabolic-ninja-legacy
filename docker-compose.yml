@@ -2,7 +2,7 @@ version: "3.1"
 services:
   web:
     build: .
-    image: gcr.io/dd-decaf-cfbf6/metabolic-ninja:${IMAGE_TAG:-latest}
+    image: gcr.io/dd-decaf-cfbf6/metabolic-ninja-legacy:${IMAGE_TAG:-latest}
     networks:
       default:
       DD-DeCaF:
